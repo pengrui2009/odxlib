@@ -72,9 +72,7 @@ struct BASE_VARIANT_REF {
     QString attr_id_ref{""};
 };
 
-struct PROT_STACK_SNREF {
-    QString attr_short_name{""};
-};
+
 
 struct LOGICAL_LINK {
     QString attr_xsi_type{""};

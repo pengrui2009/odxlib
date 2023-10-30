@@ -16,16 +16,28 @@ struct PROTOCOL_SNREF {
     QString attr_short_name;
 };
 
-struct PROT_STACK_SNREF {
-    QString attr_short_name;
+struct COMPLEX_VALUE {
+    QVector<SIMPLE_VALUE> child_simple_value;
 };
+
+//struct VALUES {
+//    VALUES() : child_simple_value() {}
+//    ~VALUES() {}
+//    union {
+//        SIMPLE_VALUE child_simple_value;
+//        COMPLEX_VALUE child_complex_value;
+//    } ;
+
+//};
 
 struct COMPARAM_REF {
     QString attr_id_ref;
     QString attr_docref;
     QString attr_doctype;
-
+    QString value_type;
     SIMPLE_VALUE child_simple_value;
+    COMPLEX_VALUE child_complex_value;
+
     PROTOCOL_SNREF child_protocol_snref;
     PROT_STACK_SNREF child_prot_stack_snref;
 };
@@ -125,6 +137,17 @@ struct SD {
     QString attr_si;
 };
 
+struct PARAM {
+    QString attr_xsi_type;
+    QString attr_oid;
+    QString attr_semantic;
+    QString child_short_name;
+    LONG_NAME child_long_name;
+    BYTE_POSITION child_byte_position;
+    BIT_POSITION child_bit_position;
+    CODED_VALUE child_coded_value;
+    DIAG_CODED_TYPE child_diag_coded_type;
+};
 
 struct PARAMS {
     QVector<PARAM> child_param;
@@ -152,6 +175,7 @@ struct DTC {
     QString attr_id;
     QString attr_oid;
     QString child_short_name;
+    LONG_NAME child_long_name;
     TROUBLE_CODE child_trouble_code;
     DISPLAY_TROUBLE_CODE child_display_trouble_code;
     TEXT child_text;
@@ -237,23 +261,81 @@ struct DIAG_DATA_DICTIONARY_SPEC {
     TABLES child_tables;
 };
 
-struct DIAG_COMMS {
-
+struct FUNCT_CLASS_REF {
+    QString attr_id_ref;
+    QString attr_docref;
+    QString attr_doctype;
 };
 
+struct FUNCT_CLASS_REFS {
+    QVector<FUNCT_CLASS_REF> child_funct_class_ref;
+};
 
-struct PARAM {
-    QString attr_xsi_type;
+struct PRE_CONDITION_STATE_REF {
+    QString attr_id_ref;
+    QString attr_docref;
+    QString attr_doctype;
+};
+
+struct PRE_CONDITION_STATE_REFS {
+    QVector<PRE_CONDITION_STATE_REF> child_pre_condition_state_ref;
+};
+
+struct REQUEST_REF {
+    QString attr_id_ref;
+    QString attr_docref;
+    QString attr_doctype;
+};
+
+struct POS_RESPONSE_REF {
+    QString attr_id_ref;
+    QString attr_docref;
+    QString attr_doctype;
+};
+
+struct POS_RESPONSE_REFS {
+    QVector<POS_RESPONSE_REF> child_pos_response_ref;
+};
+
+struct NEG_RESPONSE_REF {
+    QString attr_id_ref;
+};
+
+struct NEG_RESPONSE_REFS {
+    QVector<NEG_RESPONSE_REF> child_neg_response_ref;
+};
+
+struct BIT_MASK {
+    QString data_value;
+};
+
+struct CODED_CONST_SNREF {
+    QString attr_short_name;
+};
+
+struct POS_RESPONSE_SUPPRESSABLE {
+    BIT_MASK child_bit_mask;
+    CODED_CONST_SNREF child_coded_const_snref;
+};
+
+struct DIAG_SERVICE {
+    QString attr_id;
     QString attr_oid;
-    QString attr_semantic;
+    QString attr_addressing;
+    QString attr_transmission_mode;
     QString child_short_name;
     LONG_NAME child_long_name;
-    BYTE_POSITION child_byte_position;
-    BIT_POSITION child_bit_position;
-    CODED_VALUE child_coded_value;
-    DIAG_CODED_TYPE child_diag_coded_type;
+    FUNCT_CLASS_REFS child_funct_class_refs;
+    PRE_CONDITION_STATE_REFS child_pre_condition_state_refs;
+    REQUEST_REF child_request_ref;
+    POS_RESPONSE_REFS child_pos_response_refs;
+    NEG_RESPONSE_REFS child_neg_response_refs;
+    POS_RESPONSE_SUPPRESSABLE child_pos_response_suppressable;
 };
 
+struct DIAG_COMMS {
+    QVector<DIAG_SERVICE> child_diag_service;
+};
 
 struct NEG_RESPONSES {
     QVector<NEG_RESPONSE> child_neg_response;
@@ -263,9 +345,7 @@ struct EXPECTED_VALUE {
     QString data_value;
 };
 
-struct DIAG_COMM_SNREF {
-    QString attr_short_name;
-};
+
 
 struct OUT_PARAM_IF_SNREF {
     QString attr_short_name;
@@ -293,17 +373,26 @@ struct ECU_VARIANT {
     QString attr_id;
     QString attr_oid;
     QString child_short_name;
-
+    LONG_NAME child_long_name;
     DIAG_DATA_DICTIONARY_SPEC child_diag_data_dictionary_spec;
     DIAG_COMMS child_diag_comms;
     NEG_RESPONSES child_neg_responses;
     COMPARAM_REFS child_comparam_refs;
-    ECU_VARIANT_PATTERNS child_ecu_variant_patterns
+    ECU_VARIANT_PATTERNS child_ecu_variant_patterns;
     PARENT_REFS child_parent_refs;
 };
 
 struct ECU_VARIANTS {
     QVector<ECU_VARIANT> child_ecu_variant;
+};
+
+struct VARIANTS {
+    VARIANTS() : child_base_variants(){}
+    ~VARIANTS(){}
+    union {
+        BASE_VARIANTS child_base_variants;
+        ECU_VARIANTS child_ecu_variants;
+    } ;
 };
 
 struct DIAG_LAYER_CONTAINER {
@@ -314,10 +403,8 @@ struct DIAG_LAYER_CONTAINER {
     LONG_NAME child_long_name;
 
     QString variants_type;
-    union variants {
-        BASE_VARIANTS child_base_variants;
-        ECU_VARIANTS child_ecu_variants;
-    };
+    VARIANTS variants_data;
+
 };
 
 struct ODX_D {
@@ -338,8 +425,82 @@ public:
 private:
     std::unique_ptr<pugi::xml_document> doc_ptr_;
     ODX_D odx_;
-
+    // BASE VARIANT
     int read_odx(const pugi::xml_node &node, ODX_D &data);
+    int read_diag_layer_container(const pugi::xml_node &node, DIAG_LAYER_CONTAINER &data);
+    int read_simple_value(const pugi::xml_node &node, SIMPLE_VALUE &data);
+    int read_protocol_snref(const pugi::xml_node &node, PROTOCOL_SNREF &data);
+    int read_prot_stack_snref(const pugi::xml_node &node, PROT_STACK_SNREF &data);
+    int read_complex_value(const pugi::xml_node &node, COMPLEX_VALUE &data);
+    int read_comparam_ref(const pugi::xml_node &node, COMPARAM_REF &data);
+    int read_comparam_refs(const pugi::xml_node &node, COMPARAM_REFS &data);
+    int read_parent_ref(const pugi::xml_node &node, PARENT_REF &data);
+    int read_parent_refs(const pugi::xml_node &node, PARENT_REFS &data);
+    int read_base_variant(const pugi::xml_node &node, BASE_VARIANT &data);
+    int read_base_variants(const pugi::xml_node &node, BASE_VARIANTS &data);
+    // ECU VARIANT
+    int read_bit_length(const pugi::xml_node &node, BIT_LENGTH &data);
+    int read_diag_coded_type(const pugi::xml_node &node, DIAG_CODED_TYPE &data);
+    int read_physical_type(const pugi::xml_node &node, PHYSICAL_TYPE &data);
+    int read_category(const pugi::xml_node &node, CATEGORY &data);
+    int read_compu_method(const pugi::xml_node &node, COMPU_METHOD &data);
+
+    int read_trouble_code(const pugi::xml_node &node, TROUBLE_CODE &data);
+    int read_display_trouble_code(const pugi::xml_node &node, DISPLAY_TROUBLE_CODE &data);
+    int read_text(const pugi::xml_node &node, TEXT &data);
+    int read_level(const pugi::xml_node &node, LEVEL &data);
+    int read_sdg_caption(const pugi::xml_node &node, SDG_CAPTION &data);
+    int read_sd(const pugi::xml_node &node, SD &data);
+    int read_sdg(const pugi::xml_node &node, SDG &data);
+    int read_sdgs(const pugi::xml_node &node, SDGS &data);
+
+
+    int read_dtc(const pugi::xml_node &node, DTC &data);
+    int read_dtcs(const pugi::xml_node &node, DTCS &data);
+
+    int read_dtc_dop(const pugi::xml_node &node, DTC_DOP &data);
+    int read_dtc_dops(const pugi::xml_node &node, DTC_DOPS &data);
+    int read_diag_data_dictionary_spec(const pugi::xml_node &node, DIAG_DATA_DICTIONARY_SPEC &data);
+
+
+    int read_funct_class_ref(const pugi::xml_node &node, FUNCT_CLASS_REF &data);
+    int read_funct_class_refs(const pugi::xml_node &node, FUNCT_CLASS_REFS &data);
+    int read_pre_condition_state_ref(const pugi::xml_node &node, PRE_CONDITION_STATE_REF &data);
+    int read_pre_condition_state_refs(const pugi::xml_node &node, PRE_CONDITION_STATE_REFS &data);
+    int read_request_ref(const pugi::xml_node &node, REQUEST_REF &data);
+    int read_pos_response_ref(const pugi::xml_node &node, POS_RESPONSE_REF &data);
+    int read_pos_response_refs(const pugi::xml_node &node, POS_RESPONSE_REFS &data);
+    int read_neg_response_ref(const pugi::xml_node &node, NEG_RESPONSE_REF &data);
+    int read_neg_response_refs(const pugi::xml_node &node, NEG_RESPONSE_REFS &data);
+    int read_bit_mask(const pugi::xml_node &node, BIT_MASK &data);
+    int read_coded_const_snref(const pugi::xml_node &node, CODED_CONST_SNREF &data);
+    int read_pos_response_supperssable(const pugi::xml_node &node, POS_RESPONSE_SUPPRESSABLE &data);
+    int read_diag_service(const pugi::xml_node &node, DIAG_SERVICE &data);
+    int read_diag_comms(const pugi::xml_node &node, DIAG_COMMS &data);
+
+
+    int read_byte_position(const pugi::xml_node &node, BYTE_POSITION &data);
+    int read_bit_position(const pugi::xml_node &node, BIT_POSITION &data);
+    int read_coded_value(const pugi::xml_node &node, CODED_VALUE &data);
+
+    int read_param(const pugi::xml_node &node, PARAM &data);
+    int read_params(const pugi::xml_node &node, PARAMS &data);
+
+    int read_neg_response(const pugi::xml_node &node, NEG_RESPONSE &data);
+    int read_neg_responses(const pugi::xml_node &node, NEG_RESPONSES &data);
+    int read_expected_value(const pugi::xml_node &node, EXPECTED_VALUE &data);
+    int read_diag_comm_snref(const pugi::xml_node &node, DIAG_COMM_SNREF &data);
+    int read_out_param_if_snref(const pugi::xml_node &node, OUT_PARAM_IF_SNREF &data);
+
+    int read_matching_parameter(const pugi::xml_node &node, MATCHING_PARAMETER &data);
+    int read_matching_parameters(const pugi::xml_node &node, MATCHING_PARAMETERS &data);
+
+    int read_ecu_variant_pattern(const pugi::xml_node &node, ECU_VARIANT_PATTERN &data);
+    int read_ecu_variant_patterns(const pugi::xml_node &node, ECU_VARIANT_PATTERNS &data);
+    int read_child_parent_refs(const pugi::xml_node &node, PARENT_REFS &data);
+    int read_ecu_variant(const pugi::xml_node &node, ECU_VARIANT &data);
+    int read_ecu_variants(const pugi::xml_node &node, ECU_VARIANTS &data);
+
 };
 
 #endif // LOADODX_D_H

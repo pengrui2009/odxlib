@@ -36,13 +36,13 @@ struct DATABLOCK_REFS {
     QVector<DATABLOCK_REF> child_datablock_ref;
 };
 
-struct SDG {
-    QString attr_si;
-};
+//struct SDG {
+//    QString attr_si;
+//};
 
-struct SDGS {
-    QVector<SDG> child_sdg;
-};
+//struct SDGS {
+//    QVector<SDG> child_sdg;
+//};
 
 struct SESSION {
     QString attr_id;
@@ -51,7 +51,7 @@ struct SESSION {
     LONG_NAME child_long_name;
     EXPECTED_IDENTS child_expected_idents;
     DATABLOCK_REFS child_datablock_refs;
-    SDGS child_sdgs;
+//    SDGS child_sdgs;
 };
 
 struct SESSIONS {
@@ -120,7 +120,7 @@ struct DATABLOCK {
 };
 
 struct DATABLOCKS {
-    QVector<DATABLOCK> child_datablocks;
+    QVector<DATABLOCK> child_datablock;
 };
 
 struct DATAFORMAT {
@@ -194,9 +194,9 @@ struct SESSION_SNREF {
     QString attr_short_name;
 };
 
-struct DIAG_COMM_SNREF {
-    QString attr_short_name;
-};
+// struct DIAG_COMM_SNREF {
+//     QString attr_short_name;
+// };
 
 struct SESSION_DESC {
     QString attr_oid;
@@ -280,8 +280,8 @@ private:
     int read_expected_idents(const pugi::xml_node &node, EXPECTED_IDENTS &data);
     int read_datablock_ref(const pugi::xml_node &node, DATABLOCK_REF &data);
     int read_datablock_refs(const pugi::xml_node &node, DATABLOCK_REFS &data);
-    int read_sdg(const pugi::xml_node &node, SDG &data);
-    int read_sdgs(const pugi::xml_node &node, SDGS &data);
+//    int read_sdg(const pugi::xml_node &node, SDG &data);
+//    int read_sdgs(const pugi::xml_node &node,  &data);
     int read_session(const pugi::xml_node &node, SESSION &data);
     int read_sessions(const pugi::xml_node &node, SESSIONS &data);
 

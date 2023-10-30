@@ -28,19 +28,20 @@ int LoadPDX::load(const QString &filePath)
     foreach (const QZipReader::FileInfo& fileinfo, fileList) {
         if (fileinfo.isFile) {
             if (fileinfo.filePath.endsWith("index.xml")) {
-//                loadindex_ptr_->load(zipReader.fileData(fileinfo.filePath));
+                loadindex_ptr_->load(zipReader.fileData(fileinfo.filePath));
 //                loadindex_ptr_->print();
             } else if (fileinfo.filePath.endsWith(".odx-d")) {
-
+                loadodx_d_ptr_->load(zipReader.fileData(fileinfo.filePath));
+                loadodx_d_ptr_->print();
             } else if (fileinfo.filePath.endsWith(".odx-c")) {
 
             } else if (fileinfo.filePath.endsWith(".odx-cs")) {
 
             } else if (fileinfo.filePath.endsWith(".odx-v")) {
                 loadodx_v_ptr_->load(zipReader.fileData(fileinfo.filePath));
-                loadodx_v_ptr_->print();
+//                loadodx_v_ptr_->print();
             } else if (fileinfo.filePath.endsWith(".odx-f")) {
-//                loadodx_f_ptr_->load(zipReader.fileData(fileinfo.filePath));
+                loadodx_f_ptr_->load(zipReader.fileData(fileinfo.filePath));
 //                loadodx_f_ptr_->print();
             }
             // 读取文件内容

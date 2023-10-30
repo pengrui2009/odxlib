@@ -18,7 +18,7 @@ int LoadODX_F::load(const QByteArray &fileData)
     }
 
     // Access the root node: FLASH
-    pugi::xml_node root = doc_ptr_->child("FLASH");
+    pugi::xml_node root = doc_ptr_->child("ODX");
 
     return read_odx(root, odx_);
 
@@ -63,8 +63,8 @@ void LoadODX_F::print()
                 }
             }
         }
-    qDebug() << QString("          DATABLOCKS size:%1").arg(iter.child_mem.child_datablocks.child_datablocks.size());
-        for (auto iter1 : iter.child_mem.child_datablocks.child_datablocks)
+    qDebug() << QString("          DATABLOCKS size:%1").arg(iter.child_mem.child_datablocks.child_datablock.size());
+        for (auto iter1 : iter.child_mem.child_datablocks.child_datablock)
         {
     qDebug() << QString("            DATABLOCK property:{%1 %2 %3}").arg(iter1.attr_id).arg(iter1.attr_oid).arg(iter1.attr_type);
     qDebug() << QString("              SHORT-NAME property:%1").arg(iter1.child_short_name);
@@ -80,35 +80,57 @@ void LoadODX_F::print()
     qDebug() << QString("                SOURCE-END-ADDRESS: %1").arg(iter2.child_source_end_address);
     qDebug() << QString("                COMPRESSED-SIZE: %1").arg(iter2.child_compressed_size);
     qDebug() << QString("                UNCOMPRESSED-SIZE: %1").arg(iter2.child_uncompressed_size);
-    qDebug() << QString("                ENCRYPT-COMPRESSED-METHOD: %1").arg(iter2.child_encrypt_compress_method.attr_type).arg(iter2.child_encrypt_compress_method.data_value);
+    qDebug() << QString("                ENCRYPT-COMPRESSED-METHOD: property:{%1} %2").arg(iter2.child_encrypt_compress_method.attr_type).arg(iter2.child_encrypt_compress_method.data_value);
             }
         }
-    qDebug() << QString("                FLASHDATAS size: %1").arg(iter.child_mem.child_flashdatas.child_flashdata.size());
+    qDebug() << QString("          FLASHDATAS size: %1").arg(iter.child_mem.child_flashdatas.child_flashdata.size());
         for (auto iter1 : iter.child_mem.child_flashdatas.child_flashdata)
         {
-    qDebug() << QString("                  FLASHDATA property:{%1 %2 %3}").arg(iter1.attr_xsi_type).arg(iter1.attr_id).arg(iter1.attr_oid);
-    qDebug() << QString("                    SHORT-NAME: %1").arg(iter1.child_short_name);
-    qDebug() << QString("                    LONG-NAME: property:{%1} %2").arg(iter1.child_long_name.attr_ti).arg(iter1.child_long_name.data_value);
-    qDebug() << QString("                    DATAFORMAT: property:{%1}").arg(iter1.child_dataformat.attr_selection);
-    qDebug() << QString("                    ADDRESS-LENGTH: %1").arg(iter1.child_address_length);
-    qDebug() << QString("                    SIZE-LENGTH: %1").arg(iter1.child_size_length);
-    qDebug() << QString("                    DATAFILE: property:{%1} %2").arg(iter1.child_datafile.attr_latebound_datafile).arg(iter1.child_datafile.data_value);
-    qDebug() << QString("                    DATA: %1").arg(iter1.child_data);
-    qDebug() << QString("                    ENCRYPT-COMPRESS-METHOD property:{%1} %2").arg(iter1.child_encrypt_compress_method.attr_type).arg(iter1.child_encrypt_compress_method.data_value);
+    qDebug() << QString("            FLASHDATA property:{%1 %2 %3}").arg(iter1.attr_xsi_type).arg(iter1.attr_id).arg(iter1.attr_oid);
+    qDebug() << QString("              SHORT-NAME: %1").arg(iter1.child_short_name);
+    qDebug() << QString("              LONG-NAME: property:{%1} %2").arg(iter1.child_long_name.attr_ti).arg(iter1.child_long_name.data_value);
+    qDebug() << QString("              DATAFORMAT: property:{%1}").arg(iter1.child_dataformat.attr_selection);
+    qDebug() << QString("              ADDRESS-LENGTH: %1").arg(iter1.child_address_length);
+    qDebug() << QString("              SIZE-LENGTH: %1").arg(iter1.child_size_length);
+    qDebug() << QString("              DATAFILE: property:{%1} %2").arg(iter1.child_datafile.attr_latebound_datafile).arg(iter1.child_datafile.data_value);
+    qDebug() << QString("              DATA: %1").arg(iter1.child_data);
+    qDebug() << QString("              ENCRYPT-COMPRESS-METHOD property:{%1} %2").arg(iter1.child_encrypt_compress_method.attr_type).arg(iter1.child_encrypt_compress_method.data_value);
         }
-    qDebug() << QString("                PHYS-MEM");
-    qDebug() << QString("                  SHORT-NAME: %1").arg(iter.child_phys_mem.child_short_name);
-    qDebug() << QString("                  PHYS-SEGMENTS size: %1").arg(iter.child_phys_mem.child_phys_segments.phys_segments.size());
+    qDebug() << QString("      PHYS-MEM");
+    qDebug() << QString("        SHORT-NAME: %1").arg(iter.child_phys_mem.child_short_name);
+    qDebug() << QString("          PHYS-SEGMENTS size: %1").arg(iter.child_phys_mem.child_phys_segments.phys_segments.size());
         for (auto iter1 : iter.child_phys_mem.child_phys_segments.phys_segments)
         {
-    qDebug() << QString("                    PHYS-SEGMENT");
-    qDebug() << QString("                     SHORT-NAME: %1").arg(iter1.child_short_name);
-    qDebug() << QString("                     START-ADDRESS: %1").arg(iter1.child_start_address);
-    qDebug() << QString("                     END-ADRESS: %1").arg(iter1.child_end_address);
-    qDebug() << QString("                     FILLBYTE: %1").arg(iter1.child_fillbyte);
-    qDebug() << QString("                     SIZE: %1").arg(iter1.child_size);
-    qDebug() << QString("                     BLOCK-SIZE: %1").arg(iter1.child_block_size);
+    qDebug() << QString("            PHYS-SEGMENT");
+    qDebug() << QString("              SHORT-NAME: %1").arg(iter1.child_short_name);
+    qDebug() << QString("              START-ADDRESS: %1").arg(iter1.child_start_address);
+    qDebug() << QString("              END-ADRESS: %1").arg(iter1.child_end_address);
+    qDebug() << QString("              FILLBYTE: %1").arg(iter1.child_fillbyte);
+    qDebug() << QString("              SIZE: %1").arg(iter1.child_size);
+    qDebug() << QString("              BLOCK-SIZE: %1").arg(iter1.child_block_size);
         }
+    }
+
+    qDebug() << QString("    ECU-MEM-CONNECTORS size:%1").arg(odx_.child_flash.child_ecu_mem_connectors.child_ecu_mem_connector.size());
+    for (auto iter : odx_.child_flash.child_ecu_mem_connectors.child_ecu_mem_connector)
+    {
+    qDebug() << QString("      ECU-MEM-CONNECTOR property:{%1 %2}").arg(iter.attr_id).arg(iter.attr_oid);
+    qDebug() << QString("        SHORT-NAME:%1").arg(iter.child_short_name);
+    qDebug() << QString("        LONG-NAME property:{%1} %2").arg(iter.child_long_name.attr_ti).arg(iter.child_long_name.data_value);
+    qDebug() << QString("        SESSION-DESCS size:%1").arg(iter.child_session_descs.child_session_descs.size());
+    for (auto iter1 : iter.child_session_descs.child_session_descs)
+    {
+    qDebug() << QString("          SHORT-NAME:%1").arg(iter1.child_short_name);
+    qDebug() << QString("          LONG-NAME property:{%1} ：%2").arg(iter1.child_long_name.attr_ti).arg(iter1.child_long_name.data_value);
+    qDebug() << QString("          PRIORITY:%1").arg(iter1.child_priority);
+    qDebug() << QString("          SESSION-SNREF: property:{%1}").arg(iter1.child_session_snref.attr_short_name);
+    qDebug() << QString("          DIAG-COMM-SNREF: property:{%1}").arg(iter1.child_diag_comm_snref.attr_short_name);
+    }
+    qDebug() << QString("        ECU-MEM-REF: property:{%1}").arg(iter.child_ecu_mem_ref.attr_id_ref);
+    qDebug() << QString("        LAYER-REFS: size:%1").arg(iter.child_layer_refs.child_layer_ref.size());
+    for (auto iter1 : iter.child_layer_refs.child_layer_ref) {
+    qDebug() << QString("          LAYER-REF: property:{%1 %2 %3}").arg(iter1.attr_id_ref).arg(iter1.attr_docref).arg(iter1.attr_doctype);
+    }
     }
 }
 
@@ -258,7 +280,7 @@ int LoadODX_F::read_datablock_ref(const pugi::xml_node &node, DATABLOCK_REF &dat
     int result = 0;
 
     for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute()) {
-        if (strcmp(attr.name(), "ID") == 0) {
+        if (strcmp(attr.name(), "ID-REF") == 0) {
             data.attr_id_ref = attr.value();
         }
     }
@@ -284,36 +306,36 @@ int LoadODX_F::read_datablock_refs(const pugi::xml_node &node, DATABLOCK_REFS &d
     return result;
 }
 
-int LoadODX_F::read_sdg(const pugi::xml_node &node, SDG &data)
-{
-    int result = 0;
+//int LoadODX_F::read_sdg(const pugi::xml_node &node, SDG &data)
+//{
+//    int result = 0;
 
-    for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute()) {
-        if (strcmp(attr.name(), "SI") == 0) {
-            data.attr_si = attr.value();
-        }
-    }
+//    for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute()) {
+//        if (strcmp(attr.name(), "SI") == 0) {
+//            data.attr_si = attr.value();
+//        }
+//    }
 
-    return result;
-}
+//    return result;
+//}
 
-int LoadODX_F::read_sdgs(const pugi::xml_node &node, SDGS &data)
-{
-    int result = 0;
+//int LoadODX_F::read_sdgs(const pugi::xml_node &node, SDGS &data)
+//{
+//    int result = 0;
 
-    for (pugi::xml_node child = node.first_child(); child; child = child.next_sibling()) {
-        if (strcmp(child.name(), "SDG") == 0) {
-            SDG elem;
-            if (read_sdg(child, elem)) {
-                result = -1;
-                break;
-            }
-            data.child_sdg.push_back(elem);
-        }
-    }
+//    for (pugi::xml_node child = node.first_child(); child; child = child.next_sibling()) {
+//        if (strcmp(child.name(), "SDG") == 0) {
+//            SDG elem;
+//            if (read_sdg(child, elem)) {
+//                result = -1;
+//                break;
+//            }
+//            data.child_sdg.push_back(elem);
+//        }
+//    }
 
-    return result;
-}
+//    return result;
+//}
 
 int LoadODX_F::read_session(const pugi::xml_node &node, SESSION &data)
 {
@@ -345,12 +367,12 @@ int LoadODX_F::read_session(const pugi::xml_node &node, SESSION &data)
                 result = -1;
                 break;
             }
-        } else if (strcmp(child.name(), "SDGS") == 0) {
+        }/* else if (strcmp(child.name(), "SDGS") == 0) {
             if (read_sdgs(child, data.child_sdgs)) {
                 result = -1;
                 break;
             }
-        }
+        }*/
     }
 
     return result;
@@ -594,13 +616,13 @@ int LoadODX_F::read_datablocks(const pugi::xml_node &node, DATABLOCKS &data)
     int result = 0;
 
     for (pugi::xml_node child = node.first_child(); child; child = child.next_sibling()) {
-        if (strcmp(child.name(), "SESSIONS") == 0) {
+        if (strcmp(child.name(), "DATABLOCK") == 0) {
             DATABLOCK elem;
             if (read_datablock(child, elem)) {
                 result = -1;
                 break;
             }
-            data.child_datablocks.push_back(elem);
+            data.child_datablock.push_back(elem);
         }
     }
 
@@ -897,7 +919,7 @@ int LoadODX_F::read_session_desc(const pugi::xml_node &node, SESSION_DESC &data)
         if (strcmp(child.name(), "SHORT-NAME") == 0) {
             data.child_short_name = child.child_value();
         } else if (strcmp(child.name(), "LONG-NAME") == 0) {
-            if (read_long_name(node, data.child_long_name)) {
+            if (odxcmn::read_long_name(child, data.child_long_name)) {
                 result = -1;
                 break;
             }
@@ -906,12 +928,12 @@ int LoadODX_F::read_session_desc(const pugi::xml_node &node, SESSION_DESC &data)
         } else if (strcmp(child.name(), "PRIORITY") == 0) {
             data.child_priority = child.child_value();
         } else if (strcmp(child.name(), "SESSION-SNREF") == 0) {
-            if (read_session_snref(node, data.child_session_snref)) {
+            if (read_session_snref(child, data.child_session_snref)) {
                 result = -1;
                 break;
             }
         } else if (strcmp(child.name(), "DIAG-COMM-SNREF") == 0) {
-            if (read_diag_comm_snref(node, data.child_diag_comm_snref)) {
+            if (read_diag_comm_snref(child, data.child_diag_comm_snref)) {
                 result = -1;
                 break;
             }
@@ -976,7 +998,7 @@ int LoadODX_F::read_layer_refs(const pugi::xml_node &node, LAYER_REFS &data)
     int result = 0;
 
     for (pugi::xml_node child = node.first_child(); child; child = child.next_sibling()) {
-        if (strcmp(child.name(), "SESSION-DESC") == 0) {
+        if (strcmp(child.name(), "LAYER-REF") == 0) {
             LAYER_REF elem;
             if (read_layer_ref(child, elem)) {
                 result = -1;
@@ -1005,7 +1027,7 @@ int LoadODX_F::read_ecu_mem_connector(const pugi::xml_node &node, ECU_MEM_CONNEC
         if (strcmp(child.name(), "SHORT-NAME") == 0) {
             data.child_short_name = child.child_value();
         } else if (strcmp(child.name(), "LONG-NAME") == 0) {
-            if (read_long_name(node, data.child_long_name)) {
+            if (read_long_name(child, data.child_long_name)) {
                 result = -1;
                 break;
             }

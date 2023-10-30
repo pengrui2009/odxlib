@@ -9,6 +9,13 @@ struct LONG_NAME {
     QString data_value{""};
 };
 
+struct PROT_STACK_SNREF {
+    QString attr_short_name{""};
+};
+
+struct DIAG_COMM_SNREF {
+    QString attr_short_name;
+};
 
 class odxcmn
 {
