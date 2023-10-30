@@ -5,7 +5,8 @@
 LoadPDX::LoadPDX() :
     loadindex_ptr_{std::make_shared<LoadIndex>()},
     loadodx_v_ptr_{std::make_shared<LoadODX_V>()},
-    loadodx_f_ptr_{std::make_shared<LoadODX_F>()}
+    loadodx_f_ptr_{std::make_shared<LoadODX_F>()},
+    loadodx_d_ptr_{std::make_shared<LoadODX_D>()}
 {
 
 }

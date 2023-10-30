@@ -3,7 +3,8 @@
 #include <iostream>
 #include <QDebug>
 
-LoadODX_D::LoadODX_D()
+LoadODX_D::LoadODX_D() :
+    doc_ptr_{std::make_unique<pugi::xml_document>()}
 {
 
 }
@@ -26,27 +27,27 @@ void LoadODX_D::print()
 {
     qDebug() << QString("odx-v property:{xmlns:xsi:%1 MODEL-VERSION:%2 xsi:noNamespaceSchemaLocation:%3}").
                 arg(odx_.attr_xmlns_xsi, odx_.attr_model_version).arg(odx_.attr_xsi_noNamespaceSchemaLocation);
-    qDebug() << QString("  DIAG-LAYER-CONTAINER property:{%1 :2}").arg(odx_.child_diag_layer_container.attr_id).arg(odx_.child_diag_layer_container.attr_oid);
+    qDebug() << QString("  DIAG-LAYER-CONTAINER property:{%1 :%2}").arg(odx_.child_diag_layer_container.attr_id).arg(odx_.child_diag_layer_container.attr_oid);
     qDebug() << QString("    SHORT-NAME:%1").arg(odx_.child_diag_layer_container.child_short_name);
-    qDebug() << QString("    LONG-NAME: property{%1} :2").arg(odx_.child_diag_layer_container.child_long_name.attr_ti).arg(odx_.child_diag_layer_container.child_long_name.data_value);
+    qDebug() << QString("    LONG-NAME: property{%1} :%2").arg(odx_.child_diag_layer_container.child_long_name.attr_ti).arg(odx_.child_diag_layer_container.child_long_name.data_value);
     if ("BASE-VARIANTS" == odx_.child_diag_layer_container.variants_type) {
     qDebug() << QString("    BASE-VARIANTS size:%1").arg(odx_.child_diag_layer_container.variants_data.child_base_variants.child_base_variant.size());
     for (auto iter : odx_.child_diag_layer_container.variants_data.child_base_variants.child_base_variant)
     {
-    qDebug() << QString("      BASE-VARIANT property:{%1 :2}").arg(iter.attr_id).arg(iter.attr_oid);
+    qDebug() << QString("      BASE-VARIANT property:{%1 :%2}").arg(iter.attr_id).arg(iter.attr_oid);
     qDebug() << QString("        SHORT-NAME:%1").arg(iter.child_short_name);
     qDebug() << QString("        LONG-NAME: property:{%1} :%2").arg(iter.child_long_name.attr_ti).arg(iter.child_long_name.data_value);
     qDebug() << QString("        COMPARAM_REFS size:%1").arg(iter.child_comparam_refs.child_comparam_ref.size());
     for (auto iter1 : iter.child_comparam_refs.child_comparam_ref)
     {
     qDebug() << QString("          COMPARAM_REF property:{%1 %2 %3} ").arg(iter1.attr_id_ref).arg(iter1.attr_docref).arg(iter1.attr_doctype);
-    if ("COMPLEX-VALUE" == iter1.value_type) {
+    if (iter1.value_type.contains("COMPLEX-VALUE")) {
     qDebug() << QString("            COMPLEX-VALUE size:%1").arg(iter1.child_complex_value.child_simple_value.size());
     for (auto iter2 : iter1.child_complex_value.child_simple_value)
     {
     qDebug() << QString("              SIMPLE-VALUE :%1").arg(iter2.data_value);
     }
-    } else if ("COMPLEX-VALUE" == iter1.value_type) {
+    } else if (iter1.value_type.contains("SIMPLE-VALUE")) {
     qDebug() << QString("            SIMPLE-VALUE:%1").arg(iter1.child_simple_value.data_value);
     }
     qDebug() << QString("            PROTOCOL-SNREF property:{%1} ").arg(iter1.child_protocol_snref.attr_short_name);
