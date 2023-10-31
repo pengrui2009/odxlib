@@ -3,6 +3,7 @@
 
 #include "pugixml.hpp"
 #include <QString>
+#include <QVector>
 
 struct LONG_NAME {
     QString attr_ti{""};
@@ -17,12 +18,196 @@ struct DIAG_COMM_SNREF {
     QString attr_short_name;
 };
 
+struct DESC {
+    QString data_value;
+};
+
+struct TEAM_MEMBER_REF {
+    QString attr_id_ref;
+};
+
+struct MODIFICATION {
+    QString child_change;
+    QString child_reason;
+};
+
+struct MODIFICATIONS {
+    QVector<MODIFICATION> child_modification;
+};
+
+struct DOC_REVISION {
+    TEAM_MEMBER_REF child_team_member_ref;
+    QString child_revision_label;
+    QString child_state;
+    QString child_date;
+    QString child_tool;
+    MODIFICATIONS child_modifications;
+};
+
+struct DOC_REVISIONS {
+    QVector<DOC_REVISION> child_doc_revision;
+};
+
+struct ADMIN_DATA {
+    QString child_language;
+    DOC_REVISIONS child_doc_revisions;
+};
+
+struct TEAM_MEMBER {
+    QString attr_id;
+    QString attr_oid;
+    QString child_short_name;
+    LONG_NAME child_long_name;
+    QString child_department;
+    QString child_address;
+    QString child_zip;
+    QString child_city;
+    QString child_phone;
+    QString child_fax;
+    QString child_email;
+};
+
+struct TEAM_MEMBERS {
+    QVector<TEAM_MEMBER> child_team_member;
+};
+
+struct XDOC {
+    QString child_short_name;
+    LONG_NAME child_long_name;
+    QString child_number;
+    QString child_state;
+    QString child_date;
+    QString child_publisher;
+};
+
+struct RELATED_DOC {
+    XDOC child_xdoc;
+};
+
+struct RELATED_DOCS {
+    QVector<RELATED_DOC> child_related_doc;
+};
+
+struct COMPANY_SPECIFIC_INFO {
+    RELATED_DOCS child_related_docs;
+};
+
+struct COMPANY_DATA {
+    QString attr_id;
+    QString attr_oid;
+    QString child_short_name;
+    LONG_NAME child_long_name;
+    TEAM_MEMBERS child_team_members;
+    COMPANY_SPECIFIC_INFO child_company_specific_info;
+};
+
+struct COMPANY_DATAS {
+    QVector<COMPANY_DATA> child_company_data;
+};
+
+struct CATEGORY {
+    QString data_value;
+};
+
+
+
+struct BIT_LENGTH {
+    QString data_value;
+};
+
+struct DIAG_CODED_TYPE {
+    QString attr_xsi_type;
+    QString attr_base_type_encoding;
+    QString attr_base_data_type;
+    BIT_LENGTH child_bit_length;
+};
+
+struct PHYSICAL_TYPE {
+    QString attr_base_data_type;
+    QString attr_display_radix;
+};
+
+struct COMPU_METHOD {
+    CATEGORY child_category;
+};
+
+struct LOWER_LIMIT {
+    QString attr_interval_type;
+    QString child_data_value;
+};
+
+struct UPPER_LIMIT {
+    QString attr_interval_type;
+    QString child_data_value;
+};
+
+struct INTERNAL_CONSTR {
+    LOWER_LIMIT child_lower_limit;
+    UPPER_LIMIT child_upper_limie;
+};
+
+struct DATA_OBJECT_PROP {
+    QString attr_id;
+    QString attr_oid;
+    QString child_short_name;
+    LONG_NAME child_long_name;
+    COMPU_METHOD child_compu_method;
+    DIAG_CODED_TYPE child_diag_coded_type;
+    PHYSICAL_TYPE child_physical_type;
+    INTERNAL_CONSTR child_internal_constr;
+};
+
+struct DATA_OBJECT_PROPS {
+    QVector<DATA_OBJECT_PROP> child_data_object_prop;
+};
+
+struct SIMPLE_VALUE {
+    QString data_value;
+};
+
+
+struct COMPLEX_VALUE {
+    QVector<SIMPLE_VALUE> child_simple_value;
+};
+
+struct COMPLEX_VALUES {
+    QVector<COMPLEX_VALUE> child_complex_value;
+};
+
+
+
 class odxcmn
 {
 public:
     odxcmn();
     static int read_short_name(const pugi::xml_node &node, QString &data);
     static int read_long_name(const pugi::xml_node &node, LONG_NAME &data);
+    static int read_desc(const pugi::xml_node &node, DESC &data);
+    static int read_admin_data(const pugi::xml_node &node, ADMIN_DATA &data);
+    static int read_modification(const pugi::xml_node &node, MODIFICATION &data);
+    static int read_modifications(const pugi::xml_node &node, MODIFICATIONS &data);
+    static int read_xdoc(const pugi::xml_node &node, XDOC &data);
+    static int read_related_doc(const pugi::xml_node &node, RELATED_DOC &data);
+    static int read_related_docs(const pugi::xml_node &node, RELATED_DOCS &data);
+    static int read_company_specific_info(const pugi::xml_node &node, COMPANY_SPECIFIC_INFO &data);
+    static int read_company_data(const pugi::xml_node &node, COMPANY_DATA &data);
+    static int read_company_datas(const pugi::xml_node &node, COMPANY_DATAS &data);
+    static int read_doc_revision(const pugi::xml_node &node, DOC_REVISION &data);
+    static int read_doc_revisions(const pugi::xml_node &node, DOC_REVISIONS &data);
+    static int read_team_member_ref(const pugi::xml_node &node, TEAM_MEMBER_REF &data);
+    static int read_team_member(const pugi::xml_node &node, TEAM_MEMBER &data);
+    static int read_team_members(const pugi::xml_node &node, TEAM_MEMBERS &data);
+    static int read_simple_value(const pugi::xml_node &node, SIMPLE_VALUE &data);
+    static int read_complex_value(const pugi::xml_node &node, COMPLEX_VALUE &data);
+    static int read_complex_values(const pugi::xml_node &node, COMPLEX_VALUES &data);
+    static int read_category(const pugi::xml_node &node, CATEGORY &data);
+    static int read_compu_method(const pugi::xml_node &node, COMPU_METHOD &data);
+    static int read_bit_length(const pugi::xml_node &node, BIT_LENGTH &data);
+    static int read_diag_coded_type(const pugi::xml_node &node, DIAG_CODED_TYPE &data);
+    static int read_physical_type(const pugi::xml_node &node, PHYSICAL_TYPE &data);
+    static int read_lower_limit(const pugi::xml_node &node, LOWER_LIMIT &data);
+    static int read_upper_limit(const pugi::xml_node &node, UPPER_LIMIT &data);
+    static int read_internal_constr(const pugi::xml_node &node, INTERNAL_CONSTR &data);
 };
 
 #endif // ODXCMN_H

@@ -8,26 +8,17 @@
 #include <QVector>
 #include <QByteArray>
 
-struct SIMPLE_VALUE {
-    QString data_value;
-};
 
 struct PROTOCOL_SNREF {
     QString attr_short_name;
 };
 
-struct COMPLEX_VALUE {
-    QVector<SIMPLE_VALUE> child_simple_value;
-};
 
-//struct VALUES {
-//    VALUES() : child_simple_value() {}
-//    ~VALUES() {}
-//    union {
+//struct VALUE {
+//    union DATA {
 //        SIMPLE_VALUE child_simple_value;
 //        COMPLEX_VALUE child_complex_value;
-//    } ;
-
+//    } data;
 //};
 
 struct COMPARAM_REF {
@@ -35,6 +26,7 @@ struct COMPARAM_REF {
     QString attr_docref;
     QString attr_doctype;
     QString value_type;
+
     SIMPLE_VALUE child_simple_value;
     COMPLEX_VALUE child_complex_value;
 
@@ -82,30 +74,6 @@ struct CODED_VALUE {
     QString data_value;
 };
 
-struct BIT_LENGTH {
-    QString data_value;
-};
-
-struct DIAG_CODED_TYPE {
-    QString attr_xsi_type;
-    QString attr_base_type_encoding;
-    QString attr_base_data_type;
-    BIT_LENGTH child_bit_length;
-};
-
-struct PHYSICAL_TYPE {
-    QString attr_base_data_type;
-    QString attr_display_radix;
-};
-
-struct CATEGORY {
-    QString data_value;
-};
-
-struct COMPU_METHOD {
-    CATEGORY child_category;
-};
-
 struct TROUBLE_CODE {
     QString data_value;
 };
@@ -135,6 +103,25 @@ struct SDG_CAPTION {
 
 struct SD {
     QString attr_si;
+    QString attr_ti;
+    QString data_value;
+};
+
+struct DOP_REF {
+   QString attr_id_ref;
+};
+
+struct SDG {
+    SDG_CAPTION child_sdg_caption;
+    QVector<SD> child_sd;
+};
+
+struct SDGS {
+    QVector<SDG> child_sdgs;
+};
+
+struct PHYSICAL_DEFAULT_VALUE {
+    QString data_value;
 };
 
 struct PARAM {
@@ -144,9 +131,12 @@ struct PARAM {
     QString child_short_name;
     LONG_NAME child_long_name;
     BYTE_POSITION child_byte_position;
+    DOP_REF child_dop_ref;
     BIT_POSITION child_bit_position;
     CODED_VALUE child_coded_value;
     DIAG_CODED_TYPE child_diag_coded_type;
+    SDGS child_sdgs;
+    PHYSICAL_DEFAULT_VALUE child_physical_default_value;
 };
 
 struct PARAMS {
@@ -161,14 +151,6 @@ struct NEG_RESPONSE {
     PARAMS child_params;
 };
 
-struct SDG {
-    SDG_CAPTION child_sdg_caption;
-    QVector<SD> child_sd;
-};
-
-struct SDGS {
-    QVector<SDG> child_sdgs;
-};
 
 
 struct DTC {
@@ -202,19 +184,6 @@ struct DTC_DOPS {
     QVector<DTC_DOP> child_dtc_drop;
 };
 
-struct DATA_OBJECT_PROP {
-    QString attr_id;
-    QString attr_oid;
-    QString child_short_name;
-    LONG_NAME child_long_name;
-    COMPU_METHOD child_compu_method;
-    DIAG_CODED_TYPE child_diag_coded_type;
-    PHYSICAL_TYPE child_physical_type;
-};
-
-struct DATA_OBJECT_PROPS {
-    QVector<DATA_OBJECT_PROP> child_data_object_prop;
-};
 
 struct STRUCTURE {
     QString attr_id;
@@ -233,12 +202,25 @@ struct KEY_DOP_REF {
     QString attr_id_ref;
 };
 
+struct KEY {
+    QString data_value;
+};
+
+struct STRUCTURE_REF {
+    QString attr_id_ref;
+};
+
 struct TABLE_ROW {
     QString attr_id;
     QString attr_oid;
     QString attr_is_executable;
     QString attr_is_mandatory;
-    QString attr_id_final;
+    QString attr_is_final;
+
+    SHORT_NAME child_short_name;
+    LONG_NAME child_long_name;
+    KEY child_key;
+    STRUCTURE_REF child_structure_ref;
 };
 
 struct TABLE {
@@ -386,13 +368,70 @@ struct ECU_VARIANTS {
     QVector<ECU_VARIANT> child_ecu_variant;
 };
 
-struct VARIANTS {
-    VARIANTS() : child_base_variants(){}
-    ~VARIANTS(){}
-    union {
-        BASE_VARIANTS child_base_variants;
-        ECU_VARIANTS child_ecu_variants;
-    } ;
+//struct VARIANTS {
+//    VARIANTS() : child_base_variants(){}
+//    ~VARIANTS(){}
+//    union {
+//        BASE_VARIANTS child_base_variants;
+//        ECU_VARIANTS child_ecu_variants;
+//    } ;
+//};
+
+struct FUNCTIONAL_GROUP {
+    QString attr_id;
+    QString attr_oid;
+
+    SHORT_NAME child_short_name;
+    COMPARAM_REFS child_comparam_refs;
+    PARENT_REFS child_parent_refs;
+};
+
+struct FUNCTIONAL_GROUPS {
+    QVector<FUNCTIONAL_GROUP> child_functional_group;
+};
+
+struct COMPARAM_SPEC_REF {
+    QString attr_docref;
+    QString attr_doctype;
+    QString attr_id_ref;
+};
+
+struct PROTOCOL {
+    QString attr_id;
+    QString attr_oid;
+    SHORT_NAME child_short_name;
+    LONG_NAME child_long_name;
+    COMPARAM_SPEC_REF child_comparam_spec_ref;
+    PROT_STACK_SNREF child_prot_stack_snref;
+    PARENT_REFS child_parent_refs;
+
+};
+
+struct PROTOCOLS {
+    QVector<PROTOCOL> child_protocol;
+};
+
+struct IMPORT_REF {
+    QString attr_docref;
+    QString attr_doctype;
+    QString attr_id_ref;
+};
+
+struct IMPORT_REFS {
+    QVector<IMPORT_REF> child_improt_ref;
+};
+
+struct ECU_SHARED_DATA {
+    QString attr_id;
+    QString attr_oid;
+    SHORT_NAME child_short_name;
+    LONG_NAME child_long_name;
+    DIAG_DATA_DICTIONARY_SPEC child_diag_data_dictionary_spec;
+    IMPORT_REFS child_import_refs;
+};
+
+struct ECU_SHARED_DATAS {
+    QVector<ECU_SHARED_DATA> child_ecu_shated_data;
 };
 
 struct DIAG_LAYER_CONTAINER {
@@ -403,8 +442,12 @@ struct DIAG_LAYER_CONTAINER {
     LONG_NAME child_long_name;
 
     QString variants_type;
-    VARIANTS variants_data;
+    BASE_VARIANTS child_base_variants;
+    ECU_VARIANTS child_ecu_variants;
 
+    FUNCTIONAL_GROUPS child_functional_groups;
+    PROTOCOLS child_protocols;
+    ECU_SHARED_DATAS child_ecu_shared_datas;
 };
 
 struct ODX_D {
@@ -440,10 +483,10 @@ private:
     int read_base_variants(const pugi::xml_node &node, BASE_VARIANTS &data);
     // ECU VARIANT
     int read_bit_length(const pugi::xml_node &node, BIT_LENGTH &data);
-    int read_diag_coded_type(const pugi::xml_node &node, DIAG_CODED_TYPE &data);
-    int read_physical_type(const pugi::xml_node &node, PHYSICAL_TYPE &data);
+//    int read_diag_coded_type(const pugi::xml_node &node, DIAG_CODED_TYPE &data);
+//    int read_physical_type(const pugi::xml_node &node, PHYSICAL_TYPE &data);
     int read_category(const pugi::xml_node &node, CATEGORY &data);
-    int read_compu_method(const pugi::xml_node &node, COMPU_METHOD &data);
+//    int read_compu_method(const pugi::xml_node &node, COMPU_METHOD &data);
 
     int read_trouble_code(const pugi::xml_node &node, TROUBLE_CODE &data);
     int read_display_trouble_code(const pugi::xml_node &node, DISPLAY_TROUBLE_CODE &data);
@@ -460,6 +503,21 @@ private:
 
     int read_dtc_dop(const pugi::xml_node &node, DTC_DOP &data);
     int read_dtc_dops(const pugi::xml_node &node, DTC_DOPS &data);
+
+    int read_data_object_prop(const pugi::xml_node &node, DATA_OBJECT_PROP &data);
+    int read_data_object_props(const pugi::xml_node &node, DATA_OBJECT_PROPS &data);
+
+    int read_structure(const pugi::xml_node &node, STRUCTURE &data);
+    int read_structures(const pugi::xml_node &node, STRUCTURES &data);
+
+    int read_key_dop_ref(const pugi::xml_node &node, KEY_DOP_REF &data);
+    int read_key(const pugi::xml_node &node, KEY &data);
+    int read_table_row(const pugi::xml_node &node, TABLE_ROW &data);
+    int read_structure_ref(const pugi::xml_node &node, STRUCTURE_REF &data);
+
+    int read_table(const pugi::xml_node &node, TABLE &data);
+    int read_tables(const pugi::xml_node &node, TABLES &data);
+
     int read_diag_data_dictionary_spec(const pugi::xml_node &node, DIAG_DATA_DICTIONARY_SPEC &data);
 
 
@@ -478,7 +536,8 @@ private:
     int read_diag_service(const pugi::xml_node &node, DIAG_SERVICE &data);
     int read_diag_comms(const pugi::xml_node &node, DIAG_COMMS &data);
 
-
+    int read_physical_default_value(const pugi::xml_node &node, PHYSICAL_DEFAULT_VALUE &data);
+    int read_dop_ref(const pugi::xml_node &node, DOP_REF &data);
     int read_byte_position(const pugi::xml_node &node, BYTE_POSITION &data);
     int read_bit_position(const pugi::xml_node &node, BIT_POSITION &data);
     int read_coded_value(const pugi::xml_node &node, CODED_VALUE &data);
@@ -500,6 +559,20 @@ private:
     int read_child_parent_refs(const pugi::xml_node &node, PARENT_REFS &data);
     int read_ecu_variant(const pugi::xml_node &node, ECU_VARIANT &data);
     int read_ecu_variants(const pugi::xml_node &node, ECU_VARIANTS &data);
+
+    int read_functional_group(const pugi::xml_node &node, FUNCTIONAL_GROUP &data);
+    int read_functional_groups(const pugi::xml_node &node, FUNCTIONAL_GROUPS &data);
+
+    int read_comparam_spec_ref(const pugi::xml_node &node, COMPARAM_SPEC_REF &data);
+    int read_protocol(const pugi::xml_node &node, PROTOCOL &data);
+    int read_protocols(const pugi::xml_node &node, PROTOCOLS &data);
+
+
+    int read_import_ref(const pugi::xml_node &node, IMPORT_REF &data);
+    int read_import_refs(const pugi::xml_node &node, IMPORT_REFS &data);
+
+    int read_ecu_shared_data(const pugi::xml_node &node, ECU_SHARED_DATA &data);
+    int read_ecu_shared_datas(const pugi::xml_node &node, ECU_SHARED_DATAS &data);
 
 };
 

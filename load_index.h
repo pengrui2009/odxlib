@@ -2,28 +2,12 @@
 #define LOADINDEX_H
 
 #include "pugixml.hpp"
+#include "odx_cmn.h"
 
 #include <QString>
 #include <QVector>
 #include <QByteArray>
 
-
-
-class DOC_REVISION {
-public:
-    QString child_revision_label;
-    QString child_date;
-};
-
-class DOC_REVISIONS {
-public:
-    QVector<DOC_REVISION> child_doc_revision;
-};
-
-class ADMIN_DATA {
-public:
-    DOC_REVISIONS child_doc_revisions;
-};
 
 class FILE_ {
 public:

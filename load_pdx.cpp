@@ -6,7 +6,8 @@ LoadPDX::LoadPDX() :
     loadindex_ptr_{std::make_shared<LoadIndex>()},
     loadodx_v_ptr_{std::make_shared<LoadODX_V>()},
     loadodx_f_ptr_{std::make_shared<LoadODX_F>()},
-    loadodx_d_ptr_{std::make_shared<LoadODX_D>()}
+    loadodx_d_ptr_{std::make_shared<LoadODX_D>()},
+    loadodx_c_ptr_{std::make_shared<LoadODX_C>()}
 {
 
 }
@@ -33,9 +34,10 @@ int LoadPDX::load(const QString &filePath)
 //                loadindex_ptr_->print();
             } else if (fileinfo.filePath.endsWith(".odx-d")) {
                 loadodx_d_ptr_->load(zipReader.fileData(fileinfo.filePath));
-                loadodx_d_ptr_->print();
+//                loadodx_d_ptr_->print();
             } else if (fileinfo.filePath.endsWith(".odx-c")) {
-
+                loadodx_c_ptr_->load(zipReader.fileData(fileinfo.filePath));
+                loadodx_c_ptr_->print();
             } else if (fileinfo.filePath.endsWith(".odx-cs")) {
 
             } else if (fileinfo.filePath.endsWith(".odx-v")) {
