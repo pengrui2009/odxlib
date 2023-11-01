@@ -62,13 +62,6 @@ struct BASE_VARIANTS {
     QVector<BASE_VARIANT> child_base_variant;
 };
 
-struct BYTE_POSITION {
-    QString data_value;
-};
-
-struct BIT_POSITION {
-    QString data_value;
-};
 
 struct CODED_VALUE {
     QString data_value;
@@ -120,9 +113,7 @@ struct SDGS {
     QVector<SDG> child_sdgs;
 };
 
-struct PHYSICAL_DEFAULT_VALUE {
-    QString data_value;
-};
+
 
 struct PARAM {
     QString attr_xsi_type;

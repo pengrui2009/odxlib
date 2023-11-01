@@ -3,7 +3,8 @@
 #include <iostream>
 #include <QDebug>
 
-LoadODX_CS::LoadODX_CS()
+LoadODX_CS::LoadODX_CS() :
+    doc_ptr_{std::make_unique<pugi::xml_document>()}
 {
 
 }
@@ -24,7 +25,114 @@ int LoadODX_CS::load(const QByteArray &fileData)
 
 void LoadODX_CS::print()
 {
+    qDebug() << QString("ODX property:{%1 %2 %3}").arg(odx_.attr_model_version).arg(odx_.attr_xmlns_xsi).arg(odx_.attr_xsi_noNamespaceSchemaLocation);
+    qDebug() << QString("  COMPARAM-SUBSET property:{%1 %2}").arg(odx_.child_comparam_subset.attr_id).arg(odx_.child_comparam_subset.attr_category);
+    qDebug() << QString("    SHORT-NAME:%1").arg(odx_.child_comparam_subset.child_short_name);
+    qDebug() << QString("    LONG-NAME: property:{%1} %2").arg(odx_.child_comparam_subset.child_long_name.attr_ti).arg(odx_.child_comparam_subset.child_long_name.data_value);
+    qDebug() << QString("    COMPANY-DATAS size:%1").arg(odx_.child_comparam_subset.child_company_datas.child_company_data.size());
+    for (auto iter : odx_.child_comparam_subset.child_company_datas.child_company_data)
+    {
+    qDebug() << QString("      COMPANY-DATA property:{%1 %2}").arg(iter.attr_id).arg(iter.attr_oid);
+    qDebug() << QString("        SHORT-NAME:%1").arg(iter.child_short_name);
+    qDebug() << QString("        LONG-NAME property:{%1} :%2").arg(iter.child_long_name.attr_ti).arg(iter.child_long_name.data_value);
+    qDebug() << QString("        TEAM-MEMBERS size:%1").arg(iter.child_team_members.child_team_member.size());
+    for (auto iter1 : iter.child_team_members.child_team_member)
+    {
+    qDebug() << QString("          TEAM-MEMBER property:{%1 %2}").arg(iter1.attr_id).arg(iter1.attr_oid);
+    qDebug() << QString("            SHORT-NAME:%1").arg(iter1.child_short_name);
+    qDebug() << QString("            LONG-NAME property:{%1} :%2").arg(iter1.child_long_name.attr_ti).arg(iter1.child_long_name.data_value);
+    qDebug() << QString("            ADDRESS:%1").arg(iter1.child_address);
+    qDebug() << QString("            ZIP:%1").arg(iter1.child_zip);
+    qDebug() << QString("            CITY:%1").arg(iter1.child_city);
+    qDebug() << QString("            PHONE:%1").arg(iter1.child_phone);
+    qDebug() << QString("            FAX:%1").arg(iter1.child_fax);
+    qDebug() << QString("            EMAIL:%1").arg(iter1.child_email);
+    }
+    qDebug() << QString("        COMPANY-SPECIFIC-INFO property:{%1} :%2").arg(iter.child_long_name.attr_ti).arg(iter.child_long_name.data_value);
+    qDebug() << QString("          RELATED-DOCS size:%1").arg(iter.child_company_specific_info.child_related_docs.child_related_doc.size());
+    for (auto iter1 : iter.child_company_specific_info.child_related_docs.child_related_doc)
+    {
+    qDebug() << QString("            RELATED-DOC");
+    qDebug() << QString("              XDOC");
+    qDebug() << QString("                SHORT-NAME:%1").arg(iter1.child_xdoc.child_short_name);
+    qDebug() << QString("                LONG-NAME:%1").arg(iter1.child_xdoc.child_long_name.data_value);
+    qDebug() << QString("                NUMBER:%1").arg(iter1.child_xdoc.child_number);
+    qDebug() << QString("                STATE:%1").arg(iter1.child_xdoc.child_state);
+    qDebug() << QString("                DATE:%1").arg(iter1.child_xdoc.child_date);
+    qDebug() << QString("                PUBLISHER:%1").arg(iter1.child_xdoc.child_publisher);
+    }
+    }
+    qDebug() << QString("    COMPARAMS size:%1").arg(odx_.child_comparam_subset.child_comparams.child_comparam.size());
+    for (auto iter : odx_.child_comparam_subset.child_comparams.child_comparam)
+    {
+    qDebug() << QString("      COMPARAM property:{%1 %2 %3 %4}").arg(iter.attr_cptype).arg(iter.attr_cpusage).arg(iter.attr_id).arg(iter.attr_param_class);
+    qDebug() << QString("        SHORT-NAME size:%1").arg(iter.child_short_name);
+    qDebug() << QString("        LONG-NAME: property:{%1} %2").arg(iter.child_long_name.attr_ti).arg(iter.child_long_name.data_value);
+    qDebug() << QString("        DESC:%1").arg(iter.child_desc.data_value);
+    qDebug() << QString("        PHYSICAL-DEFAULT-VALUE:%1").arg(iter.child_physical_default_value);
+    qDebug() << QString("        DATA-OBJECT-PROP-REF: property:{%1}").arg(iter.child_data_object_prop_ref.attr_id_ref);
+    }
+    qDebug() << QString("    COMPLEX-COMPARAMS size:%1").arg(odx_.child_comparam_subset.child_complex_comparams.child_comparam.size());
+    for (auto iter : odx_.child_comparam_subset.child_complex_comparams.child_comparam)
+    {
+    qDebug() << QString("      COMPLEX-COMPARAM: property:{%1 %2 %3 %4 %5 %6}").arg(iter.attr_allow_multiple_values).arg(iter.attr_cptype).arg(iter.attr_cpusage).arg(iter.attr_display_level).arg(iter.attr_id).arg(iter.attr_param_class);
+    qDebug() << QString("        SHORT-NAME:%1").arg(iter.child_short_name);
+    qDebug() << QString("        LONG-NAME:property:{%1} %2").arg(iter.child_long_name.attr_ti).arg(iter.child_long_name.data_value);
+    qDebug() << QString("        DESC:%1").arg(iter.child_desc.data_value);
+    for (auto iter1 : iter.child_comparam)
+    {
+    qDebug() << QString("        COMPARAM: property:{%1 %2 %3 %4 %5}").arg(iter1.attr_cptype).arg(iter1.attr_cpusage).arg(iter1.attr_display_level).arg(iter1.attr_id).arg(iter1.attr_param_class);
+    qDebug() << QString("          SHORT-NAME: %1").arg(iter1.attr_cptype).arg(iter1.child_short_name);
+    qDebug() << QString("          LONG-NAME: property:{%1} %2").arg(iter1.child_long_name.attr_ti).arg(iter1.child_long_name.data_value);
+    qDebug() << QString("          DESC: %1").arg(iter1.child_desc.data_value);
+    qDebug() << QString("          PHYSICAL-DEFAULT-VALUE: %1").arg(iter1.child_physical_default_value);
+    qDebug() << QString("          DATA-OBJECT-PROP-REF: property:{%1}").arg(iter1.child_data_object_prop_ref.attr_id_ref);
+    }
+    qDebug() << QString("        COMPLEX-PHYSICAL-DEFAULT-VALUE");
+    qDebug() << QString("          COMPLEX-VALUES size:%1").arg(iter.child_complex_physical_default_value.child_complex_values.child_complex_value.size());
+    for (auto iter1 : iter.child_complex_physical_default_value.child_complex_values.child_complex_value)
+    {
+    qDebug() << QString("            COMPLEX-VALUE");
+    for (auto iter2 : iter1.child_simple_value)
+    {
+    qDebug() << QString("              SIMPLE-VALUE:%1").arg(iter2.data_value);
+    }
 
+    }
+    }
+    qDebug() << QString("    DATA-OBJECT-PROPS size:%1").arg(odx_.child_comparam_subset.child_data_obejct_props.child_data_object_prop.size());
+    for (auto iter : odx_.child_comparam_subset.child_data_obejct_props.child_data_object_prop)
+    {
+    qDebug() << QString("      DATA-OBJECT-PROP property:{%1 %2}").arg(iter.attr_id).arg(iter.attr_oid);
+    qDebug() << QString("        SHORT-NAME:%1").arg(iter.child_short_name);
+    qDebug() << QString("        LONG-NAME: property:{%1} %2").arg(iter.child_long_name.attr_ti).arg(iter.child_long_name.data_value);
+    qDebug() << QString("        COMPU-METHOD: property:{%1} %2").arg(iter.child_compu_method.child_category.data_value).arg(iter.child_long_name.data_value);
+    qDebug() << QString("          CATEGORY: %1").arg(iter.child_compu_method.child_category.data_value);
+    qDebug() << QString("        DIAG-CODED-TYPE: property:{%1 %2 %3}").arg(iter.child_diag_coded_type.attr_base_data_type).arg(iter.child_diag_coded_type.attr_termination).arg(iter.child_diag_coded_type.attr_xsi_type);
+    qDebug() << QString("          MAX-LENGTH:%1").arg(iter.child_diag_coded_type.child_max_length.child_data_value);
+    qDebug() << QString("          MIN-LENGTH:%2").arg(iter.child_diag_coded_type.child_min_length.child_data_value);
+    qDebug() << QString("        PHYSICAL-TYPE: property:{%1} %2").arg(iter.child_physical_type.attr_base_data_type).arg(iter.child_physical_type.attr_display_radix);
+    qDebug() << QString("        INTERNAL-CONSTR");
+    qDebug() << QString("          LOWER-LIMIT property:{%1} %2").arg(iter.child_internal_constr.child_lower_limit.attr_interval_type).arg(iter.child_internal_constr.child_lower_limit.child_data_value);
+    qDebug() << QString("          UPPER-LIMIT property:{%1} %2").arg(iter.child_internal_constr.child_upper_limie.attr_interval_type).arg(iter.child_internal_constr.child_upper_limie.child_data_value);
+    }
+    qDebug() << QString("    UNIT-SPEC");
+    qDebug() << QString("      UNITS size:%1").arg(odx_.child_comparam_subset.child_unit_spec.child_units.child_unit.size());
+    for (auto iter : odx_.child_comparam_subset.child_unit_spec.child_units.child_unit)
+    {
+    qDebug() << QString("        UNIT property:{%1}").arg(iter.attr_id);
+    qDebug() << QString("          SHORT-NAME:%1").arg(iter.child_short_name);
+    qDebug() << QString("          LONG-NAME:%1").arg(iter.child_long_name.data_value);
+    qDebug() << QString("          DISPLAY-NAME:%1").arg(iter.child_display_name);
+    }
+    qDebug() << QString("      PHYSICAL-DIMENSIONS size:%1").arg(odx_.child_comparam_subset.child_unit_spec.child_physical_dimensions.child_physical_dimension.size());
+    for (auto iter : odx_.child_comparam_subset.child_unit_spec.child_physical_dimensions.child_physical_dimension)
+    {
+    qDebug() << QString("        PHYSICAL-DIMENSION property:{%1 %2").arg(iter.attr_id).arg(iter.attr_oid);
+    qDebug() << QString("          SHORT-NAME:%1").arg(iter.child_short_name);
+    qDebug() << QString("          LONG-NAME:%1").arg(iter.child_long_name.data_value);
+    qDebug() << QString("          TIME-EXP:%1").arg(iter.child_time_exp);
+    }
 }
 
 int LoadODX_CS::read_data_object_prop_ref(const pugi::xml_node &node, DATA_OBJECT_PROP_REF &data) {
@@ -258,6 +366,8 @@ int LoadODX_CS::read_unit(const pugi::xml_node &node, UNIT &data) {
     for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute()) {
         if (strcmp(attr.name(), "ID") == 0) {
             data.attr_id = attr.value();
+        } else if (strcmp(attr.name(), "OID") == 0) {
+            data.attr_oid = attr.value();
         }
     }
 
@@ -315,7 +425,7 @@ int LoadODX_CS::read_physical_dimension(const pugi::xml_node &node, PHYSICAL_DIM
                 break;
             }
         } else if (strcmp(child.name(), "LONG-NAME") == 0) {
-            if (odxcmn::read_short_name(child, data.child_short_name)) {
+            if (odxcmn::read_long_name(child, data.child_long_name)) {
                 result = -1;
                 break;
             }

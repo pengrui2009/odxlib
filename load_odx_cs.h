@@ -8,9 +8,7 @@
 #include <QVector>
 #include <QByteArray>
 
-struct DATA_OBJECT_PROP_REF {
-    QString attr_id_ref;
-};
+
 
 struct COMPARAM {
     QString attr_cptype;
@@ -33,10 +31,7 @@ struct COMPARAMS {
 //    QVector<COMPLEX_VALUE> child_complex_values;
 //};
 
-struct COMPLEX_PHYSICAL_DEFAULT_VALUE {
-    COMPLEX_VALUES child_complex_values;
 
-};
 
 struct COMPLEX_COMPARAM {
     QString attr_allow_multiple_values;
@@ -57,33 +52,9 @@ struct COMPLEX_COMPARAMS {
     QVector<COMPLEX_COMPARAM> child_comparam;
 };
 
-struct UNIT {
-    QString attr_id;
-    QString child_short_name;
-    LONG_NAME child_long_name;
-    QString child_display_name;
-};
 
-struct UNITS {
-    QVector<UNIT> child_unit;
-};
 
-struct PHYSICAL_DIMENSION {
-    QString attr_id;
-    QString attr_oid;
-    QString child_short_name;
-    QString child_long_name;
-    QString child_time_exp;
-};
 
-struct PHYSICAL_DIMENSIONS {
-    QVector<PHYSICAL_DIMENSION> child_physical_dimension;
-};
-
-struct UNIT_SPEC {
-    UNITS child_units;
-    PHYSICAL_DIMENSIONS child_physical_dimensions;
-};
 
 struct COMPARAM_SUBSET {
     QString attr_category;

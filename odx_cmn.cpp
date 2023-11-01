@@ -416,6 +416,24 @@ int odxcmn::read_bit_length(const pugi::xml_node &node, BIT_LENGTH &data) {
     return result;
 }
 
+int odxcmn::read_max_length(const pugi::xml_node &node, MAX_LENGTH &data)
+{
+    int result = 0;
+
+    data.child_data_value = node.child_value();
+
+    return result;
+}
+
+int odxcmn::read_min_length(const pugi::xml_node &node, MIN_LENGTH &data)
+{
+    int result = 0;
+
+    data.child_data_value = node.child_value();
+
+    return result;
+}
+
 int odxcmn::read_diag_coded_type(const pugi::xml_node &node, DIAG_CODED_TYPE &data) {
     int result = 0;
 
@@ -426,12 +444,24 @@ int odxcmn::read_diag_coded_type(const pugi::xml_node &node, DIAG_CODED_TYPE &da
             data.attr_base_data_type = attr.value();
         } else if (strcmp(attr.name(), "BASE-TYPE-ENCODING") == 0) {
             data.attr_base_type_encoding = attr.value();
+        } else if (strcmp(attr.name(), "TERMINATION") == 0) {
+            data.attr_termination = attr.value();
         }
     }
 
     for (pugi::xml_node child = node.first_child(); child; child = child.next_sibling()) {
         if (strcmp(child.name(), "BIT-LENGTH") == 0) {
             if (read_bit_length(child, data.child_bit_length)) {
+                result = -1;
+                break;
+            }
+        } else if (strcmp(child.name(), "MAX-LENGTH") == 0) {
+            if (read_max_length(child, data.child_max_length)) {
+                result = -1;
+                break;
+            }
+        } else if (strcmp(child.name(), "MIN-LENGTH") == 0) {
+            if (read_min_length(child, data.child_min_length)) {
                 result = -1;
                 break;
             }
@@ -505,3 +535,240 @@ int odxcmn::read_internal_constr(const pugi::xml_node &node, INTERNAL_CONSTR &da
 
     return result;
 }
+
+int odxcmn::read_byte_position(const pugi::xml_node &node, BYTE_POSITION &data)
+{
+    int result = 0;
+
+    data.data_value = node.child_value();
+
+    return result;
+}
+
+int odxcmn::read_bit_position(const pugi::xml_node &node, BIT_POSITION &data)
+{
+    int result = 0;
+
+    data.data_value = node.child_value();
+
+    return result;
+}
+
+int odxcmn::read_data_object_prop_ref(const pugi::xml_node &node, DATA_OBJECT_PROP_REF &data)
+{
+    int result = 0;
+
+    for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute()) {
+        if (strcmp(attr.name(), "ID-REF") == 0) {
+            data.attr_id_ref = attr.value();
+        }
+    }
+
+    return result;
+}
+
+int odxcmn::read_physical_default_value(const pugi::xml_node &node, PHYSICAL_DEFAULT_VALUE &data) {
+    int result = 0;
+
+    data.data_value = node.child_value();
+
+    return result;
+}
+
+int odxcmn::read_physical_dimension_ref(const pugi::xml_node &node, PHYSICAL_DIMENSION_REF &data)
+{
+    int result = 0;
+
+    for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute()) {
+        if (strcmp(attr.name(), "ID-REF") == 0) {
+            data.attr_id_ref = attr.value();
+        }
+    }
+
+    return result;
+}
+
+int odxcmn::read_unit(const pugi::xml_node &node, UNIT &data) {
+    int result = 0;
+
+    for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute()) {
+        if (strcmp(attr.name(), "ID") == 0) {
+            data.attr_id = attr.value();
+        } else if (strcmp(attr.name(), "OID") == 0) {
+            data.attr_oid = attr.value();
+        }
+    }
+
+    for (pugi::xml_node child = node.first_child(); child; child = child.next_sibling()) {
+        if (strcmp(child.name(), "SHORT-NAME") == 0) {
+            if (odxcmn::read_short_name(child, data.child_short_name)) {
+                result = -1;
+                break;
+            }
+        } else if (strcmp(child.name(), "LONG-NAME") == 0) {
+            if (odxcmn::read_long_name(child, data.child_long_name)) {
+                result = -1;
+                break;
+            }
+        } else if (strcmp(child.name(), "DISPLAY-NAME") == 0) {
+            data.child_display_name = child.child_value();
+        } else if (strcmp(child.name(), "FACTOR-SI-TO-UNIT") == 0) {
+            data.child_factor_si_to_unit = child.child_value();
+        } else if (strcmp(child.name(), "OFFSET-SI-TO-UNIT") == 0) {
+            data.child_offset_si_to_unit = child.child_value();
+        } else if (strcmp(child.name(), "PHYSICAL-DIMENSION-REF") == 0) {
+            if (read_physical_dimension_ref(child, data.child_physical_dimension_ref)) {
+                result = -1;
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
+int odxcmn::read_units(const pugi::xml_node &node, UNITS &data) {
+    int result = 0;
+
+    for (pugi::xml_node child = node.first_child(); child; child = child.next_sibling()) {
+        if (strcmp(child.name(), "UNIT") == 0) {
+            UNIT elem;
+            if (read_unit(child, elem)) {
+                result = -1;
+                break;
+            }
+            data.child_unit.push_back(elem);
+        }
+    }
+
+    return result;
+}
+
+int odxcmn::read_physical_dimension(const pugi::xml_node &node, PHYSICAL_DIMENSION &data) {
+    int result = 0;
+
+    for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute()) {
+        if (strcmp(attr.name(), "ID") == 0) {
+            data.attr_id = attr.value();
+        } else if (strcmp(attr.name(), "OID") == 0) {
+            data.attr_id = attr.value();
+        }
+    }
+
+    for (pugi::xml_node child = node.first_child(); child; child = child.next_sibling()) {
+        if (strcmp(child.name(), "SHORT-NAME") == 0) {
+            if (odxcmn::read_short_name(child, data.child_short_name)) {
+                result = -1;
+                break;
+            }
+        } else if (strcmp(child.name(), "LONG-NAME") == 0) {
+            if (odxcmn::read_long_name(child, data.child_long_name)) {
+                result = -1;
+                break;
+            }
+        } else if (strcmp(child.name(), "TIME-EXP") == 0) {
+            data.child_time_exp = child.child_value();
+        }
+    }
+
+    return result;
+}
+
+int odxcmn::read_physical_dimensions(const pugi::xml_node &node, PHYSICAL_DIMENSIONS &data) {
+    int result = 0;
+
+    for (pugi::xml_node child = node.first_child(); child; child = child.next_sibling()) {
+        if (strcmp(child.name(), "PHYSICAL-DIMENSION") == 0) {
+            PHYSICAL_DIMENSION elem;
+            if (read_physical_dimension(child, elem)) {
+                result = -1;
+                break;
+            }
+            data.child_physical_dimension.push_back(elem);
+        }
+    }
+
+    return result;
+}
+
+int odxcmn::read_unit_spec(const pugi::xml_node &node, UNIT_SPEC &data) {
+    int result = 0;
+
+    for (pugi::xml_node child = node.first_child(); child; child = child.next_sibling()) {
+        if (strcmp(child.name(), "UNITS") == 0) {
+            if (read_units(child, data.child_units)) {
+                result = -1;
+                break;
+            }
+        } else if (strcmp(child.name(), "PHYSICAL-DIMENSIONS") == 0) {
+            if (read_physical_dimensions(child, data.child_physical_dimensions)) {
+                result = -1;
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
+int odxcmn::read_data_object_prop(const pugi::xml_node &node, DATA_OBJECT_PROP &data) {
+    int result = 0;
+
+    for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute()) {
+        if (strcmp(attr.name(), "ID") == 0) {
+            data.attr_id = attr.value();
+        } else if (strcmp(attr.name(), "OID") == 0) {
+            data.attr_oid = attr.value();
+        }
+    }
+
+    for (pugi::xml_node child = node.first_child(); child; child = child.next_sibling()) {
+        if (strcmp(child.name(), "SHORT-NAME") == 0) {
+            if (odxcmn::read_short_name(child, data.child_short_name)) {
+                result = -1;
+                break;
+            }
+        } else if (strcmp(child.name(), "LONG-NAME") == 0) {
+            if (odxcmn::read_long_name(child, data.child_long_name)) {
+                result = -1;
+                break;
+            }
+        } else if (strcmp(child.name(), "COMPU-METHOD") == 0) {
+            if (odxcmn::read_compu_method(child, data.child_compu_method)) {
+                result = -1;
+                break;
+            }
+        } else if (strcmp(child.name(), "DIAG-CODED-TYPE") == 0) {
+            if (odxcmn::read_diag_coded_type(child, data.child_diag_coded_type)) {
+                result = -1;
+                break;
+            }
+        } else if (strcmp(child.name(), "PHYSICAL-TYPE") == 0) {
+            if (odxcmn::read_physical_type(child, data.child_physical_type)) {
+                result = -1;
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
+int odxcmn::read_data_object_props(const pugi::xml_node &node, DATA_OBJECT_PROPS &data)
+{
+    int result = 0;
+
+    for (pugi::xml_node child = node.first_child(); child; child = child.next_sibling()) {
+        if (strcmp(child.name(), "DATA-OBJECT-PROP") == 0) {
+            DATA_OBJECT_PROP elem;
+            if (read_data_object_prop(child, elem)) {
+                result = -1;
+                break;
+            }
+            data.child_data_object_prop.push_back(elem);
+        }
+    }
+
+    return result;
+}
+

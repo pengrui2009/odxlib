@@ -9,6 +9,7 @@
 #include "load_odx_f.h"
 #include "load_odx_d.h"
 #include "load_odx_c.h"
+#include "load_odx_cs.h"
 
 #include "QtGui/private/qzipreader_p.h"
 #include "QtGui/private/qzipwriter_p.h"
@@ -25,6 +26,7 @@ private:
     std::shared_ptr<LoadODX_F> loadodx_f_ptr_{nullptr};
     std::shared_ptr<LoadODX_D> loadodx_d_ptr_{nullptr};
     std::shared_ptr<LoadODX_C> loadodx_c_ptr_{nullptr};
+    std::shared_ptr<LoadODX_CS> loadodx_cs_ptr_{nullptr};
 };
 
 #endif // ODXHANDLER_H

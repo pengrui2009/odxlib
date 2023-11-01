@@ -115,11 +115,22 @@ struct BIT_LENGTH {
     QString data_value;
 };
 
+struct MAX_LENGTH {
+    QString child_data_value;
+};
+
+struct MIN_LENGTH {
+    QString child_data_value;
+};
+
 struct DIAG_CODED_TYPE {
     QString attr_xsi_type;
     QString attr_base_type_encoding;
+    QString attr_termination;
     QString attr_base_data_type;
     BIT_LENGTH child_bit_length;
+    MAX_LENGTH child_max_length;
+    MIN_LENGTH child_min_length;
 };
 
 struct PHYSICAL_TYPE {
@@ -174,7 +185,61 @@ struct COMPLEX_VALUES {
     QVector<COMPLEX_VALUE> child_complex_value;
 };
 
+struct BYTE_POSITION {
+    QString data_value;
+};
 
+struct BIT_POSITION {
+    QString data_value;
+};
+
+struct DATA_OBJECT_PROP_REF {
+    QString attr_id_ref;
+};
+
+struct PHYSICAL_DEFAULT_VALUE {
+    QString data_value;
+};
+
+struct COMPLEX_PHYSICAL_DEFAULT_VALUE {
+    COMPLEX_VALUES child_complex_values;
+};
+
+struct PHYSICAL_DIMENSION {
+    QString attr_id;
+    QString attr_oid;
+    QString child_short_name;
+    LONG_NAME child_long_name;
+    QString child_time_exp;
+};
+
+struct PHYSICAL_DIMENSION_REF {
+    QString attr_id_ref;
+};
+
+struct UNIT {
+    QString attr_id;
+    QString attr_oid;
+    QString child_short_name;
+    LONG_NAME child_long_name;
+    QString child_display_name;
+    QString child_factor_si_to_unit;
+    QString child_offset_si_to_unit;
+    PHYSICAL_DIMENSION_REF child_physical_dimension_ref;
+};
+
+struct UNITS {
+    QVector<UNIT> child_unit;
+};
+
+struct PHYSICAL_DIMENSIONS {
+    QVector<PHYSICAL_DIMENSION> child_physical_dimension;
+};
+
+struct UNIT_SPEC {
+    UNITS child_units;
+    PHYSICAL_DIMENSIONS child_physical_dimensions;
+};
 
 class odxcmn
 {
@@ -203,11 +268,25 @@ public:
     static int read_category(const pugi::xml_node &node, CATEGORY &data);
     static int read_compu_method(const pugi::xml_node &node, COMPU_METHOD &data);
     static int read_bit_length(const pugi::xml_node &node, BIT_LENGTH &data);
+    static int read_max_length(const pugi::xml_node &node, MAX_LENGTH &data);
+    static int read_min_length(const pugi::xml_node &node, MIN_LENGTH &data);
     static int read_diag_coded_type(const pugi::xml_node &node, DIAG_CODED_TYPE &data);
     static int read_physical_type(const pugi::xml_node &node, PHYSICAL_TYPE &data);
     static int read_lower_limit(const pugi::xml_node &node, LOWER_LIMIT &data);
     static int read_upper_limit(const pugi::xml_node &node, UPPER_LIMIT &data);
     static int read_internal_constr(const pugi::xml_node &node, INTERNAL_CONSTR &data);
+    static int read_byte_position(const pugi::xml_node &node, BYTE_POSITION &data);
+    static int read_bit_position(const pugi::xml_node &node, BIT_POSITION &data);
+    static int read_data_object_prop_ref(const pugi::xml_node &node, DATA_OBJECT_PROP_REF &data);
+    static int read_physical_default_value(const pugi::xml_node &node, PHYSICAL_DEFAULT_VALUE &data);
+    static int read_unit_spec(const pugi::xml_node &node, UNIT_SPEC &data);
+    static int read_unit(const pugi::xml_node &node, UNIT &data);
+    static int read_units(const pugi::xml_node &node, UNITS &data);
+    static int read_physical_dimension(const pugi::xml_node &node, PHYSICAL_DIMENSION &data);
+    static int read_physical_dimensions(const pugi::xml_node &node, PHYSICAL_DIMENSIONS &data);
+    static int read_data_object_prop(const pugi::xml_node &node, DATA_OBJECT_PROP &data);
+    static int read_data_object_props(const pugi::xml_node &node, DATA_OBJECT_PROPS &data);
+    static int read_physical_dimension_ref(const pugi::xml_node &node, PHYSICAL_DIMENSION_REF &data);
 };
 
 #endif // ODXCMN_H
