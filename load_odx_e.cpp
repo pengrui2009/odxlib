@@ -9,7 +9,7 @@ LoadODX_E::LoadODX_E() :
 
 }
 
-int LoadODX_E::load(const QByteArray &fileData)
+int LoadODX_E::load(const QByteArray &fileData, ODX_E &odx)
 {
     pugi::xml_parse_result result = doc_ptr_->load_buffer(fileData.constData(), fileData.length());
     if (!result) {
@@ -20,17 +20,17 @@ int LoadODX_E::load(const QByteArray &fileData)
     // Access the root node: ODX
     pugi::xml_node root = doc_ptr_->child("ODX");
 
-    return read_odx(root, odx_);
+    return read_odx(root, odx);
 }
 
-void LoadODX_E::print()
+void LoadODX_E::print(const ODX_E &odx)
 {
-    qDebug() << QString("ODX property:{%1 %2 %3}").arg(odx_.attr_model_version).arg(odx_.attr_xmlns_xsi).arg(odx_.attr_xsi_nonamespaceschemaLocation);
-    qDebug() << QString("  ECU-CONFIG property:{%1 %2}").arg(odx_.child_ecu_config.attr_id).arg(odx_.child_ecu_config.attr_oid);
-    qDebug() << QString("    SHORT-NAME:%1").arg(odx_.child_ecu_config.child_short_name);
-    qDebug() << QString("    LONG-NAME: property:{%1} %2").arg(odx_.child_ecu_config.child_long_name.attr_ti).arg(odx_.child_ecu_config.child_long_name.data_value);
-    qDebug() << QString("    CONFIG-DATAS size:%1").arg(odx_.child_ecu_config.child_config_datas.child_config_data.size());
-    for (auto iter : odx_.child_ecu_config.child_config_datas.child_config_data)
+    qDebug() << QString("ODX property:{%1 %2 %3}").arg(odx.attr_model_version).arg(odx.attr_xmlns_xsi).arg(odx.attr_xsi_nonamespaceschemaLocation);
+    qDebug() << QString("  ECU-CONFIG property:{%1 %2}").arg(odx.child_ecu_config.attr_id).arg(odx.child_ecu_config.attr_oid);
+    qDebug() << QString("    SHORT-NAME:%1").arg(odx.child_ecu_config.child_short_name);
+    qDebug() << QString("    LONG-NAME: property:{%1} %2").arg(odx.child_ecu_config.child_long_name.attr_ti).arg(odx.child_ecu_config.child_long_name.data_value);
+    qDebug() << QString("    CONFIG-DATAS size:%1").arg(odx.child_ecu_config.child_config_datas.child_config_data.size());
+    for (auto iter : odx.child_ecu_config.child_config_datas.child_config_data)
     {
     qDebug() << QString("      CONFIG-DATA");
     qDebug() << QString("        SHORT-NAME:%1").arg(iter.child_short_name);
@@ -88,8 +88,8 @@ void LoadODX_E::print()
     }
     }
     qDebug() << QString("    CONFIG-DATA-DICTIONARY-SPEC");
-    qDebug() << QString("      DATA-OBJECT-PROPS size:%1").arg(odx_.child_ecu_config.child_config_data_dictionary_spec.child_data_object_props.child_data_object_prop.size());
-    for (auto iter : odx_.child_ecu_config.child_config_data_dictionary_spec.child_data_object_props.child_data_object_prop)
+    qDebug() << QString("      DATA-OBJECT-PROPS size:%1").arg(odx.child_ecu_config.child_config_data_dictionary_spec.child_data_object_props.child_data_object_prop.size());
+    for (auto iter : odx.child_ecu_config.child_config_data_dictionary_spec.child_data_object_props.child_data_object_prop)
     {
     qDebug() << QString("        DATA-OBJECT-PROP property:{%1 %2}").arg(iter.attr_id).arg(iter.attr_oid);
     qDebug() << QString("          SHORT-NAME:%1").arg(iter.child_short_name);
@@ -101,8 +101,8 @@ void LoadODX_E::print()
     qDebug() << QString("          PHYSICAL-TYPE property:{%1 %2}").arg(iter.child_physical_type.attr_base_data_type).arg(iter.child_physical_type.attr_display_radix);
     }
     qDebug() << QString("      UNIT-SPEC");
-    qDebug() << QString("        UNITS size:%1").arg(odx_.child_ecu_config.child_config_data_dictionary_spec.child_unit_spec.child_units.child_unit.size());
-    for (auto iter : odx_.child_ecu_config.child_config_data_dictionary_spec.child_unit_spec.child_units.child_unit)
+    qDebug() << QString("        UNITS size:%1").arg(odx.child_ecu_config.child_config_data_dictionary_spec.child_unit_spec.child_units.child_unit.size());
+    for (auto iter : odx.child_ecu_config.child_config_data_dictionary_spec.child_unit_spec.child_units.child_unit)
     {
     qDebug() << QString("          UNIT property:{%1 %2}").arg(iter.attr_id).arg(iter.attr_oid);
     qDebug() << QString("            SHORT-NAME:%1").arg(iter.child_short_name);
@@ -112,8 +112,8 @@ void LoadODX_E::print()
 //    qDebug() << QString("            OFFSET-SI-TO-UNIT:{%1 %2}").arg(iter.attr_id).arg(iter.attr_oid);
 //    qDebug() << QString("            PHYSICAL-DIMENSION-REF property:{%1}").arg(iter.);
     }
-    qDebug() << QString("        PHYSICAL-DIMENSIONS size:%1").arg(odx_.child_ecu_config.child_config_data_dictionary_spec.child_data_object_props.child_data_object_prop.size());
-    for (auto iter : odx_.child_ecu_config.child_config_data_dictionary_spec.child_unit_spec.child_physical_dimensions.child_physical_dimension)
+    qDebug() << QString("        PHYSICAL-DIMENSIONS size:%1").arg(odx.child_ecu_config.child_config_data_dictionary_spec.child_data_object_props.child_data_object_prop.size());
+    for (auto iter : odx.child_ecu_config.child_config_data_dictionary_spec.child_unit_spec.child_physical_dimensions.child_physical_dimension)
     {
     qDebug() << QString("          PHYSICAL-DIMENSION property:{%1 %2}").arg(iter.attr_id).arg(iter.attr_oid);
     qDebug() << QString("            SHORT-NAME:%1").arg(iter.child_short_name);

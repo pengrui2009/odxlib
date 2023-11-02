@@ -3,13 +3,158 @@
 #include <iostream>
 #include <QDebug>
 
+ODX_F_Resolve::ODX_F_Resolve(ODX_F &odx) :
+    odx_(odx)
+{
+
+}
+
+ODX_F_Resolve::~ODX_F_Resolve()
+{
+
+}
+
+void ODX_F_Resolve::resolve_flashdatas()
+{
+
+}
+
+void ODX_F_Resolve::resolve_datablocks()
+{
+
+}
+
+void ODX_F_Resolve::resolve_sessions()
+{
+
+}
+
+void ODX_F_Resolve::resolve_sessiondescs()
+{
+
+}
+
+void ODX_F_Resolve::resolve_ecu_mems()
+{
+    for (auto iter : odx_.child_flash.child_ecu_mems.child_ecu_mem)
+    {
+        EcuMemLink elem;
+        for (auto iter1 : iter.child_mem.child_sessions.child_session)
+        {
+            elem.sessions_map[iter1.child_short_name] = iter1;
+        }
+
+        for (auto iter1 : iter.child_mem.child_datablocks.child_datablock)
+        {
+            elem.datablocks_map[iter1.attr_id] = iter1;
+        }
+
+        for (auto iter1 : iter.child_mem.child_flashdatas.child_flashdata)
+        {
+            elem.flashdatas_map[iter1.attr_id] = iter1;
+        }
+
+        ecumems_map_[iter.attr_id] = elem;
+    }
+}
+
+void ODX_F_Resolve::resolve_ecumemconnectors()
+{
+    for (auto iter : odx_.child_flash.child_ecu_mem_connectors.child_ecu_mem_connector)
+    {
+        EcuMemConnectorLink elem;
+        for (auto iter1 : iter.child_session_descs.child_session_desc)
+        {
+            elem.sessiondescs_map[iter.attr_oid] = iter1;
+        }
+        elem.ecu_mem_ref = iter.child_ecu_mem_ref;
+        for (auto iter1 : iter.child_layer_refs.child_layer_ref)
+        {
+            elem.layerrefs_map[iter1.attr_id_ref] = iter1;
+        }
+        ecumemconnectors_map_[iter.attr_id] = elem;
+    }
+}
+
+int ODX_F_Resolve::resolve(Flash &flash_info)
+{
+    int result = 0;
+
+    resolve_ecu_mems();
+    resolve_sessions();
+    resolve_datablocks();
+    resolve_flashdatas();
+    resolve_ecumemconnectors();
+    resolve_sessiondescs();
+
+    flash_info.id = odx_.child_flash.attr_id;
+    flash_info.short_name = odx_.child_flash.child_short_name;
+    flash_info.long_name = odx_.child_flash.child_long_name.data_value;
+    for (auto iter : odx_.child_flash.child_ecu_mem_connectors.child_ecu_mem_connector)
+    {
+        EcuMemConnectorResolve elem;
+        QString ecu_mem_id_ref = iter.child_ecu_mem_ref.attr_id_ref;
+//        ECU_MEM ecu_mem = ecumem_map_[iter.child_ecu_mem_ref.attr_id_ref];
+        elem.short_name = iter.child_short_name;
+        elem.long_name = iter.child_long_name.data_value;
+        for (auto iter1 : iter.child_session_descs.child_session_desc)
+        {
+            SessiondescResolve elem_sessiondesc;
+
+            elem_sessiondesc.short_name = iter1.child_short_name;
+            elem_sessiondesc.long_name = iter1.child_long_name.data_value;
+            elem_sessiondesc.priority = iter1.child_priority.toInt();
+            QString session_snref_short_name = iter1.child_session_snref.attr_short_name;
+            if (ecumems_map_.count(ecu_mem_id_ref)) {
+
+                if (ecumems_map_[ecu_mem_id_ref].sessions_map.count(session_snref_short_name))
+                {
+                    elem_sessiondesc.session.short_name = ecumems_map_[ecu_mem_id_ref].sessions_map[session_snref_short_name].child_short_name;
+                    elem_sessiondesc.session.long_name = ecumems_map_[ecu_mem_id_ref].sessions_map[session_snref_short_name].child_long_name.data_value;
+
+                    for (auto iter2 : ecumems_map_[ecu_mem_id_ref].sessions_map[session_snref_short_name].child_datablock_refs.child_datablock_ref)
+                    {
+                        QString datablock_ref_id_ref = iter2.attr_id_ref;
+                        if (ecumems_map_[ecu_mem_id_ref].datablocks_map.count(datablock_ref_id_ref))
+                        {
+                            DatablockResolve elem_datablock;
+                            elem_datablock.short_name = ecumems_map_[ecu_mem_id_ref].datablocks_map[datablock_ref_id_ref].child_short_name;
+                            elem_datablock.long_name = ecumems_map_[ecu_mem_id_ref].datablocks_map[datablock_ref_id_ref].child_long_name.data_value;
+                            QString flashdata_ref_id_ref = ecumems_map_[ecu_mem_id_ref].datablocks_map[datablock_ref_id_ref].child_flashdata_ref.attr_id_ref;
+                            if (ecumems_map_[ecu_mem_id_ref].flashdatas_map.count(flashdata_ref_id_ref)) {
+                                elem_datablock.flash_data.short_name = ecumems_map_[ecu_mem_id_ref].flashdatas_map[flashdata_ref_id_ref].child_short_name;
+                                elem_datablock.flash_data.long_name = ecumems_map_[ecu_mem_id_ref].flashdatas_map[flashdata_ref_id_ref].child_long_name.data_value;
+                                elem_datablock.flash_data.data_format = ecumems_map_[ecu_mem_id_ref].flashdatas_map[flashdata_ref_id_ref].child_dataformat.attr_selection;
+                                elem_datablock.flash_data.data_file = ecumems_map_[ecu_mem_id_ref].flashdatas_map[flashdata_ref_id_ref].child_datafile.data_value;
+                                elem_sessiondesc.session.data_blocks.push_back(elem_datablock);
+                            }
+                        }
+        //                elem_sessiondesc.session.data_blocks.push_back();
+                    }
+
+        //            elem.sessiondescs.push_back(elem_sessiondesc);
+                }
+            }
+
+            elem.sessiondescs.push_back(elem_sessiondesc);
+        }
+        for (auto iter1 : iter.child_layer_refs.child_layer_ref)
+        {
+            elem.layer_refs.push_back(iter1.attr_id_ref);
+        }
+        flash_info.ecu_mem_connectors.push_back(elem);
+    }
+
+    return result;
+}
+
 LoadODX_F::LoadODX_F() :
     doc_ptr_{std::make_unique<pugi::xml_document>()}
 {
 
 }
 
-int LoadODX_F::load(const QByteArray &fileData)
+int LoadODX_F::load(const QByteArray &fileData, ODX_F &odx)
 {
     pugi::xml_parse_result result = doc_ptr_->load_buffer(fileData.constData(), fileData.length());
     if (!result) {
@@ -20,27 +165,27 @@ int LoadODX_F::load(const QByteArray &fileData)
     // Access the root node: FLASH
     pugi::xml_node root = doc_ptr_->child("ODX");
 
-    return read_odx(root, odx_);
+    return read_odx(root, odx);
 
     return result;
 }
 
-void LoadODX_F::print()
+void LoadODX_F::print(const ODX_F &odx)
 {
     qDebug() << QString("odx-v property:{xmlns:xsi:%1 MODEL-VERSION:%2 xsi:noNamespaceSchemaLocation:%3}").
-                arg(odx_.attr_xmlns_xsi, odx_.attr_model_version).arg(odx_.attr_xsi_noNamespaceSchemaLocation);
-    qDebug() << QString("  FLASH property:{ID:%1 OID:%2}").arg(odx_.child_flash.attr_id, odx_.child_flash.attr_oid);
-    qDebug() << QString("    SHORT-NAME:%1").arg(odx_.child_flash.child_short_name);
-    qDebug() << QString("    LONG-NAME property:{%1} :%2").arg(odx_.child_flash.child_long_name.attr_ti).arg(odx_.child_flash.child_long_name.data_value);
-    qDebug() << QString("    ECU-MEMS size:%1").arg(odx_.child_flash.child_ecu_mems.child_ecu_mem.size());
-    for (auto iter : odx_.child_flash.child_ecu_mems.child_ecu_mem)
+                arg(odx.attr_xmlns_xsi, odx.attr_model_version).arg(odx.attr_xsi_noNamespaceSchemaLocation);
+    qDebug() << QString("  FLASH property:{ID:%1 OID:%2}").arg(odx.child_flash.attr_id, odx.child_flash.attr_oid);
+    qDebug() << QString("    SHORT-NAME:%1").arg(odx.child_flash.child_short_name);
+    qDebug() << QString("    LONG-NAME property:{%1} :%2").arg(odx.child_flash.child_long_name.attr_ti).arg(odx.child_flash.child_long_name.data_value);
+    qDebug() << QString("    ECU-MEMS size:%1").arg(odx.child_flash.child_ecu_mems.child_ecu_mem.size());
+    for (auto iter : odx.child_flash.child_ecu_mems.child_ecu_mem)
     {
     qDebug() << QString("      ECU-MEM property:{%1 %2}").arg(iter.attr_id).arg(iter.attr_oid);
     qDebug() << QString("        SHORT-NAME:%1").arg(iter.child_short_name);
     qDebug() << QString("        LONG-NAME property:{%1} %2").arg(iter.child_long_name.attr_ti).arg(iter.child_long_name.data_value);
     qDebug() << QString("        MEM");
-    qDebug() << QString("          SESSIONS size:%1").arg(iter.child_mem.child_sessions.child_sessions.size());
-        for (auto iter1 : iter.child_mem.child_sessions.child_sessions) {
+    qDebug() << QString("          SESSIONS size:%1").arg(iter.child_mem.child_sessions.child_session.size());
+        for (auto iter1 : iter.child_mem.child_sessions.child_session) {
     qDebug() << QString("            SESSION property:{%1 %2}").arg(iter1.attr_id).arg(iter1.attr_oid);
     qDebug() << QString("              SHORT-NAME: %1").arg(iter1.child_short_name);
     qDebug() << QString("              LONG-NAME: property:{%1} %2").arg(iter1.child_long_name.attr_ti).arg(iter1.child_long_name.data_value);
@@ -111,14 +256,14 @@ void LoadODX_F::print()
         }
     }
 
-    qDebug() << QString("    ECU-MEM-CONNECTORS size:%1").arg(odx_.child_flash.child_ecu_mem_connectors.child_ecu_mem_connector.size());
-    for (auto iter : odx_.child_flash.child_ecu_mem_connectors.child_ecu_mem_connector)
+    qDebug() << QString("    ECU-MEM-CONNECTORS size:%1").arg(odx.child_flash.child_ecu_mem_connectors.child_ecu_mem_connector.size());
+    for (auto iter : odx.child_flash.child_ecu_mem_connectors.child_ecu_mem_connector)
     {
     qDebug() << QString("      ECU-MEM-CONNECTOR property:{%1 %2}").arg(iter.attr_id).arg(iter.attr_oid);
     qDebug() << QString("        SHORT-NAME:%1").arg(iter.child_short_name);
     qDebug() << QString("        LONG-NAME property:{%1} %2").arg(iter.child_long_name.attr_ti).arg(iter.child_long_name.data_value);
-    qDebug() << QString("        SESSION-DESCS size:%1").arg(iter.child_session_descs.child_session_descs.size());
-    for (auto iter1 : iter.child_session_descs.child_session_descs)
+    qDebug() << QString("        SESSION-DESCS size:%1").arg(iter.child_session_descs.child_session_desc.size());
+    for (auto iter1 : iter.child_session_descs.child_session_desc)
     {
     qDebug() << QString("          SHORT-NAME:%1").arg(iter1.child_short_name);
     qDebug() << QString("          LONG-NAME property:{%1} ：%2").arg(iter1.child_long_name.attr_ti).arg(iter1.child_long_name.data_value);
@@ -389,7 +534,7 @@ int LoadODX_F::read_sessions(const pugi::xml_node &node, SESSIONS &data)
                 result = -1;
                 break;
             }
-            data.child_sessions.push_back(elem);
+            data.child_session.push_back(elem);
         }
     }
 
@@ -956,7 +1101,7 @@ int LoadODX_F::read_session_descs(const pugi::xml_node &node, SESSION_DESCS &dat
                 result = -1;
                 break;
             }
-            data.child_session_descs.push_back(elem);
+            data.child_session_desc.push_back(elem);
         }
     }
 

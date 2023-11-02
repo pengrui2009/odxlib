@@ -141,12 +141,12 @@ class LoadODX_E
 {
 public:
     LoadODX_E();
-    int load(const QByteArray &fileData);
-    void print();
+    int load(const QByteArray &fileData, ODX_E &odx);
+    void print(const ODX_E &odx);
 
 private:
     std::unique_ptr<pugi::xml_document> doc_ptr_;
-    ODX_E odx_;
+//    ODX_E odx_;
 
     int read_odx(const pugi::xml_node &node, ODX_E &data);
     int read_ecu_config(const pugi::xml_node &node, ECU_CONFIG &data);

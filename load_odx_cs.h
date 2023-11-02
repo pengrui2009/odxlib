@@ -81,12 +81,12 @@ class LoadODX_CS
 {
 public:
     LoadODX_CS();
-    int load(const QByteArray &fileData);
-    void print();
+    int load(const QByteArray &fileData, ODX_CS &odx);
+    void print(const ODX_CS &odx);
 
 private:
     std::unique_ptr<pugi::xml_document> doc_ptr_;
-    ODX_CS odx_;
+//    ODX_CS odx_;
 
     int read_odx(const pugi::xml_node &node, ODX_CS &data);
     int read_comparam_subset(const pugi::xml_node &node, COMPARAM_SUBSET &data);

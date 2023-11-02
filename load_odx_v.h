@@ -135,7 +135,8 @@ struct VEHICLE_INFO_SPEC {
     VEHICLE_INFORMATIONS child_vehicle_informations;
 };
 
-struct ODX_V {
+class ODX_V {
+public:
     QString attr_xmlns_xsi{""};
     QString attr_model_version{""};
     QString attr_xsi_noNamespaceSchemaLocation{""};
@@ -146,11 +147,11 @@ class LoadODX_V
 {
 public:
     LoadODX_V();
-    int load(const QByteArray &fileData);
-    void print();
+    int load(const QByteArray &fileData, ODX_V &data);
+    void print(const ODX_V &data);
 
 private:
-    ODX_V odx_;
+//    ODX_V odx_;
     std::unique_ptr<pugi::xml_document> doc_ptr_{nullptr};
 
     int read_odx(const pugi::xml_node &node, ODX_V &data);

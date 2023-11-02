@@ -7,7 +7,7 @@
 #include <memory>
 #include <QVector>
 #include <QByteArray>
-
+#include <unordered_map>
 
 struct PROTOCOL_SNREF {
     QString attr_short_name;
@@ -435,13 +435,13 @@ struct DIAG_LAYER_CONTAINER {
     QString variants_type;
     BASE_VARIANTS child_base_variants;
     ECU_VARIANTS child_ecu_variants;
-
     FUNCTIONAL_GROUPS child_functional_groups;
     PROTOCOLS child_protocols;
     ECU_SHARED_DATAS child_ecu_shared_datas;
 };
 
-struct ODX_D {
+class ODX_D {
+public:
     QString attr_xmlns_xsi{""};
     QString attr_model_version{""};
     QString attr_xsi_noNamespaceSchemaLocation{""};
@@ -449,16 +449,77 @@ struct ODX_D {
     DIAG_LAYER_CONTAINER child_diag_layer_container;
 };
 
+
+class BaseVariant {
+public:
+    QString id;
+    QString short_name;
+    QString long_name;
+    std::unordered_map<QString, COMPARAM_REF> comparam_refs;
+    QVector<PARENT_REF> parent_refs;
+};
+
+class EcuVariant {
+public:
+
+};
+
+class Protocol {
+
+};
+
+struct FunctionalGroups {
+
+};
+
+struct EcuSharedData {
+
+};
+
+enum OdxDataType {
+    kOdxDataTypeEcuVariant = 1,
+    kOdxDataTypeBaseVariant = 2,
+    kOdxDataTypeProtocol = 3,
+    kOdxDataTypeFunctionalGroups = 4,
+    kOdxDataTypeEcuSharedData = 5
+};
+
+class DiagLayerContianer {
+public:
+    QString id;
+    QString short_name;
+    QString long_name;
+    OdxDataType data_type;
+    std::unordered_map<QString, BaseVariant> base_variants;
+    QVector<EcuVariant> ecu_variants;
+    QVector<Protocol> protocols;
+    QVector<FunctionalGroups> functional_groups;
+    QVector<EcuSharedData> ecu_shared_datas;
+};
+
+class ODX_D_Resolve {
+public:
+    ODX_D_Resolve(ODX_D &odx);
+    ~ODX_D_Resolve();
+
+    int resolve(DiagLayerContianer &info);
+private:
+    ODX_D &odx_;
+
+    int resolve();
+    int resolve(const BASE_VARIANT &Info, BaseVariant &data);
+};
+
 class LoadODX_D
 {
 public:
     LoadODX_D();
-    int load(const QByteArray &fileData);
-    void print();
+    int load(const QByteArray &fileData, ODX_D &odx);
+    void print(const ODX_D &odx);
 
 private:
     std::unique_ptr<pugi::xml_document> doc_ptr_;
-    ODX_D odx_;
+//    ODX_D odx_;
     // BASE VARIANT
     int read_odx(const pugi::xml_node &node, ODX_D &data);
     int read_diag_layer_container(const pugi::xml_node &node, DIAG_LAYER_CONTAINER &data);

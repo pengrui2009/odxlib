@@ -56,12 +56,12 @@ class LoadODX_C
 {
 public:
     LoadODX_C();
-    int load(const QByteArray &fileData);
-    void print();
+    int load(const QByteArray &fileData, ODX_C &odx);
+    void print(const ODX_C &odx);
 
 private:
     std::unique_ptr<pugi::xml_document> doc_ptr_;
-    ODX_C odx_;
+
 
     int read_odx(const pugi::xml_node &node, ODX_C &data);
     int read_comparam_spec(const pugi::xml_node &node, COMPARAM_SPEC &data);

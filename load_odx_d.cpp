@@ -3,13 +3,78 @@
 #include <iostream>
 #include <QDebug>
 
+ODX_D_Resolve::ODX_D_Resolve(ODX_D &odx) :
+    odx_(odx)
+{
+
+}
+
+ODX_D_Resolve::~ODX_D_Resolve()
+{
+
+}
+
+int ODX_D_Resolve::resolve(DiagLayerContianer &info)
+{
+    int result = 0;
+
+    info.id = odx_.child_diag_layer_container.attr_id;
+    info.short_name = odx_.child_diag_layer_container.child_short_name;
+    info.long_name = odx_.child_diag_layer_container.child_long_name.data_value;
+    if ("BASE-VARIANTS" == odx_.child_diag_layer_container.variants_type)
+    {
+        for (auto iter : odx_.child_diag_layer_container.child_base_variants.child_base_variant)
+        {
+            BaseVariant elem;
+            result = resolve(iter, elem);
+            if (result)
+            {
+                std::cout << "resolve BaseVariant failed!" << std::endl;
+                return result;
+            }
+            info.data_type = kOdxDataTypeBaseVariant;
+            info.base_variants[elem.id] = elem;
+        }
+
+    } else if ("ECU-VARIANTS" == odx_.child_diag_layer_container.variants_type) {
+
+    } else if ("FUNCTIONAL-GROUPS" == odx_.child_diag_layer_container.variants_type) {
+
+    } else if ("PROTOCOLS" == odx_.child_diag_layer_container.variants_type) {
+
+    } else if ("ECU-SHARED-DATAS" == odx_.child_diag_layer_container.variants_type) {
+
+    }
+
+    return result;
+}
+
+int ODX_D_Resolve::resolve(const BASE_VARIANT &Info, BaseVariant &data)
+{
+    int result = 0;
+
+    data.id = Info.attr_id;
+    data.short_name = Info.child_short_name;
+    data.long_name = Info.child_long_name.data_value;
+    for (auto iter1 : Info.child_comparam_refs.child_comparam_ref)
+    {
+        data.comparam_refs[iter1.attr_id_ref] = iter1;
+    }
+    for (auto iter1 : Info.child_parent_refs.child_parent_ref)
+    {
+        data.parent_refs.push_back(iter1);
+    }
+
+    return result;
+}
+
 LoadODX_D::LoadODX_D() :
     doc_ptr_{std::make_unique<pugi::xml_document>()}
 {
 
 }
 
-int LoadODX_D::load(const QByteArray &fileData)
+int LoadODX_D::load(const QByteArray &fileData, ODX_D &odx)
 {
     pugi::xml_parse_result result = doc_ptr_->load_buffer(fileData.constData(), fileData.length());
     if (!result) {
@@ -20,19 +85,19 @@ int LoadODX_D::load(const QByteArray &fileData)
     // Access the root node: ODX
     pugi::xml_node root = doc_ptr_->child("ODX");
 
-    return read_odx(root, odx_);
+    return read_odx(root, odx);
 }
 
-void LoadODX_D::print()
+void LoadODX_D::print(const ODX_D &odx)
 {
     qDebug() << QString("odx-v property:{xmlns:xsi:%1 MODEL-VERSION:%2 xsi:noNamespaceSchemaLocation:%3}").
-                arg(odx_.attr_xmlns_xsi, odx_.attr_model_version).arg(odx_.attr_xsi_noNamespaceSchemaLocation);
-    qDebug() << QString("  DIAG-LAYER-CONTAINER property:{%1 :%2}").arg(odx_.child_diag_layer_container.attr_id).arg(odx_.child_diag_layer_container.attr_oid);
-    qDebug() << QString("    SHORT-NAME:%1").arg(odx_.child_diag_layer_container.child_short_name);
-    qDebug() << QString("    LONG-NAME: property{%1} :%2").arg(odx_.child_diag_layer_container.child_long_name.attr_ti).arg(odx_.child_diag_layer_container.child_long_name.data_value);
-    if ("BASE-VARIANTS" == odx_.child_diag_layer_container.variants_type) {
-    qDebug() << QString("    BASE-VARIANTS size:%1").arg(odx_.child_diag_layer_container.child_base_variants.child_base_variant.size());
-    for (auto iter : odx_.child_diag_layer_container.child_base_variants.child_base_variant)
+                arg(odx.attr_xmlns_xsi, odx.attr_model_version).arg(odx.attr_xsi_noNamespaceSchemaLocation);
+    qDebug() << QString("  DIAG-LAYER-CONTAINER property:{%1 :%2}").arg(odx.child_diag_layer_container.attr_id).arg(odx.child_diag_layer_container.attr_oid);
+    qDebug() << QString("    SHORT-NAME:%1").arg(odx.child_diag_layer_container.child_short_name);
+    qDebug() << QString("    LONG-NAME: property{%1} :%2").arg(odx.child_diag_layer_container.child_long_name.attr_ti).arg(odx.child_diag_layer_container.child_long_name.data_value);
+    if ("BASE-VARIANTS" == odx.child_diag_layer_container.variants_type) {
+    qDebug() << QString("    BASE-VARIANTS size:%1").arg(odx.child_diag_layer_container.child_base_variants.child_base_variant.size());
+    for (auto iter : odx.child_diag_layer_container.child_base_variants.child_base_variant)
     {
     qDebug() << QString("      BASE-VARIANT property:{%1 :%2}").arg(iter.attr_id).arg(iter.attr_oid);
     qDebug() << QString("        SHORT-NAME:%1").arg(iter.child_short_name);
@@ -59,9 +124,9 @@ void LoadODX_D::print()
     qDebug() << QString("          PARENT_REF property:{%1 %2 %3 %4}").arg(iter1.attr_xsi_type).arg(iter1.attr_id_ref).arg(iter1.attr_docref).arg(iter1.attr_doctype);
     }
     }
-    } else if ("ECU-VARIANTS" == odx_.child_diag_layer_container.variants_type){
-    qDebug() << QString("    ECU-VARIANTS size:%1").arg(odx_.child_diag_layer_container.child_ecu_variants.child_ecu_variant.size());
-    for (auto iter : odx_.child_diag_layer_container.child_ecu_variants.child_ecu_variant)
+    } else if ("ECU-VARIANTS" == odx.child_diag_layer_container.variants_type){
+    qDebug() << QString("    ECU-VARIANTS size:%1").arg(odx.child_diag_layer_container.child_ecu_variants.child_ecu_variant.size());
+    for (auto iter : odx.child_diag_layer_container.child_ecu_variants.child_ecu_variant)
     {
     qDebug() << QString("      ECU-VARIANT property:{%1 %2}").arg(iter.attr_id).arg(iter.attr_oid);
     qDebug() << QString("        SHORT-NAME:%1").arg(iter.child_short_name);
@@ -227,11 +292,9 @@ void LoadODX_D::print()
     qDebug() << QString("          PARENT-REF property:{%1 %2 %3 %4}").arg(iter1.attr_xsi_type).arg(iter1.attr_id_ref).arg(iter1.attr_docref).arg(iter1.attr_doctype);
     }
     }
-    } else {
-
-    }
-    qDebug() << QString("    FUNCTIONAL-GROUPS size:%1").arg(odx_.child_diag_layer_container.child_functional_groups.child_functional_group.size());
-    for (auto iter : odx_.child_diag_layer_container.child_functional_groups.child_functional_group)
+    } else if ("FUNCTIONAL-GROUPS" == odx.child_diag_layer_container.variants_type) {
+    qDebug() << QString("    FUNCTIONAL-GROUPS size:%1").arg(odx.child_diag_layer_container.child_functional_groups.child_functional_group.size());
+    for (auto iter : odx.child_diag_layer_container.child_functional_groups.child_functional_group)
     {
     qDebug() << QString("      FUNCTIONAL-GROUP property:{%1 %2}").arg(iter.attr_id).arg(iter.attr_oid);
     qDebug() << QString("        SHORT-NAME:%1").arg(iter.child_short_name.data_value);
@@ -256,6 +319,12 @@ void LoadODX_D::print()
     qDebug() << QString("          PARENT-REF property:{%1 %2 %3 %4}").arg(iter1.attr_docref).arg(iter1.attr_doctype).arg(iter1.attr_id_ref).arg(iter1.attr_xsi_type);
     }
     }
+    } else if ("PROTOCOLS" == odx.child_diag_layer_container.variants_type) {
+
+    } else if ("ECU-SHARED-DATAS" == odx.child_diag_layer_container.variants_type) {
+
+    }
+
 }
 
 int LoadODX_D::read_odx(const pugi::xml_node &node, ODX_D &data)

@@ -7,6 +7,7 @@
 #include <memory>
 #include <QVector>
 #include <QByteArray>
+#include <unordered_map>
 
 struct IDENT_VALUE {
     QString attr_type;
@@ -55,7 +56,7 @@ struct SESSION {
 };
 
 struct SESSIONS {
-    QVector<SESSION> child_sessions;
+    QVector<SESSION> child_session;
 };
 
 struct ENCRYPT_COMPRESS_METHOD {
@@ -147,6 +148,7 @@ struct FLASHDATA {
 };
 
 struct FLASHDATAS {
+public:
     QVector<FLASHDATA> child_flashdata;
 };
 
@@ -211,7 +213,7 @@ struct SESSION_DESC {
 };
 
 struct SESSION_DESCS {
-    QVector<SESSION_DESC> child_session_descs;
+    QVector<SESSION_DESC> child_session_desc;
 };
 
 
@@ -253,23 +255,111 @@ struct FLASH {
     ECU_MEM_CONNECTORS child_ecu_mem_connectors;
 };
 
-struct ODX_F {
+class ODX_F {
+public:
     QString attr_xmlns_xsi{""};
     QString attr_model_version{""};
     QString attr_xsi_noNamespaceSchemaLocation{""};
     FLASH child_flash;
 };
 
+class EcuMemLink {
+public:
+    std::unordered_map<QString, SESSION> sessions_map;
+    std::unordered_map<QString, DATABLOCK> datablocks_map;
+    std::unordered_map<QString, FLASHDATA> flashdatas_map;
+};
+
+class EcuMemConnectorLink {
+public:
+    std::unordered_map<QString, SESSION_DESC> sessiondescs_map;
+    ECU_MEM_REF ecu_mem_ref;
+    std::unordered_map<QString, LAYER_REF> layerrefs_map;
+};
+
+class FlashdataResolve {
+public:
+    QString short_name;
+    QString long_name;
+    QString data_format;
+    QString data_file;
+};
+
+class DatablockResolve {
+public:
+    QString short_name;
+    QString long_name;
+    FlashdataResolve flash_data;
+
+};
+
+class SessionResolve {
+public:
+    QString short_name;
+    QString long_name;
+    QVector<DatablockResolve> data_blocks;
+};
+
+class SessiondescResolve {
+public:
+    QString short_name;
+    QString long_name;
+    int priority;
+    SessionResolve session;
+};
+
+class EcuMemConnectorResolve {
+public:
+    QString short_name;
+    QString long_name;
+    QVector<SessiondescResolve> sessiondescs;
+    QVector<QString> layer_refs;
+};
+
+class Flash {
+public:
+    QString id;
+    QString short_name;
+    QString long_name;
+    QVector<EcuMemConnectorResolve> ecu_mem_connectors;
+};
+
+class ODX_F_Resolve {
+public:
+    ODX_F_Resolve(ODX_F &odx);
+    ~ODX_F_Resolve();
+
+    int resolve(Flash &info);
+private:
+    ODX_F &odx_;
+
+//    std::unordered_map<QString, FLASHDATA> flashdata_map_;
+//    std::unordered_map<QString, DATABLOCK> datablock_map_;
+//    std::unordered_map<QString, SESSION> session_map_;
+//    std::unordered_map<QString, SESSION_DESC> sessiondesc_map_;
+//    std::unordered_map<QString, ECU_MEM> ecumem_map_;
+//    std::unordered_map<QString, ECU_MEM_CONNECTOR> ecumenconnector_map_;
+    std::unordered_map<QString, EcuMemLink> ecumems_map_;
+    std::unordered_map<QString, EcuMemConnectorLink> ecumemconnectors_map_;
+
+    void resolve_flashdatas();
+    void resolve_datablocks();
+    void resolve_sessions();
+    void resolve_ecu_mems();
+    void resolve_sessiondescs();
+    void resolve_ecumemconnectors();
+};
+
 class LoadODX_F
 {
 public:
     LoadODX_F();
-    int load(const QByteArray &fileData);
-    void print();
+    int load(const QByteArray &fileData, ODX_F &odx);
+    void print(const ODX_F &odx);
 
 private:
     std::unique_ptr<pugi::xml_document> doc_ptr_;
-    ODX_F odx_;
+//    ODX_F odx_;
 
     int read_odx(const pugi::xml_node &node, ODX_F &data);
 

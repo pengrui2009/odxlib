@@ -9,7 +9,7 @@ LoadODX_C::LoadODX_C() :
 
 }
 
-int LoadODX_C::load(const QByteArray &fileData)
+int LoadODX_C::load(const QByteArray &fileData, ODX_C &odx)
 {
     pugi::xml_parse_result result = doc_ptr_->load_buffer(fileData.constData(), fileData.length());
     if (!result) {
@@ -20,20 +20,20 @@ int LoadODX_C::load(const QByteArray &fileData)
     // Access the root node: ODX
     pugi::xml_node root = doc_ptr_->child("ODX");
 
-    return read_odx(root, odx_);
+    return read_odx(root, odx);
 }
 
-void LoadODX_C::print()
+void LoadODX_C::print(const ODX_C &odx)
 {
-    qDebug() << QString("ODX property:{%1 %2 %3}").arg(odx_.attr_model_version).arg(odx_.attr_xmlns_xsi).arg(odx_.attr_xsi_noNamespaceSchemaLocation);
-    qDebug() << QString("  COMPARAM-SPEC property:{%1}").arg(odx_.child_comparam_spec.attr_id);
-    qDebug() << QString("    SHORT-NAME:%1").arg(odx_.child_comparam_spec.child_short_name);
-    qDebug() << QString("    LONG-NAME property:{%1} :%2").arg(odx_.child_comparam_spec.child_long_name.attr_ti).arg(odx_.child_comparam_spec.child_long_name.data_value);
-    qDebug() << QString("    DESC:%1").arg(odx_.child_comparam_spec.child_desc.data_value);
+    qDebug() << QString("ODX property:{%1 %2 %3}").arg(odx.attr_model_version).arg(odx.attr_xmlns_xsi).arg(odx.attr_xsi_noNamespaceSchemaLocation);
+    qDebug() << QString("  COMPARAM-SPEC property:{%1}").arg(odx.child_comparam_spec.attr_id);
+    qDebug() << QString("    SHORT-NAME:%1").arg(odx.child_comparam_spec.child_short_name);
+    qDebug() << QString("    LONG-NAME property:{%1} :%2").arg(odx.child_comparam_spec.child_long_name.attr_ti).arg(odx.child_comparam_spec.child_long_name.data_value);
+    qDebug() << QString("    DESC:%1").arg(odx.child_comparam_spec.child_desc.data_value);
     qDebug() << QString("    ADMIN-DATA");
-    qDebug() << QString("      LANGUAGE:%1").arg(odx_.child_comparam_spec.child_admin_data.child_language);
-    qDebug() << QString("      DOC-REVISIONS size:%1").arg(odx_.child_comparam_spec.child_admin_data.child_doc_revisions.child_doc_revision.size());
-    for (auto iter : odx_.child_comparam_spec.child_admin_data.child_doc_revisions.child_doc_revision)
+    qDebug() << QString("      LANGUAGE:%1").arg(odx.child_comparam_spec.child_admin_data.child_language);
+    qDebug() << QString("      DOC-REVISIONS size:%1").arg(odx.child_comparam_spec.child_admin_data.child_doc_revisions.child_doc_revision.size());
+    for (auto iter : odx.child_comparam_spec.child_admin_data.child_doc_revisions.child_doc_revision)
     {
     qDebug() << QString("        DOC-REVISION");
     qDebug() << QString("          TEAM-MEMBER-REF property:{%1}").arg(iter.child_team_member_ref.attr_id_ref);
@@ -48,8 +48,8 @@ void LoadODX_C::print()
     qDebug() << QString("              REASON:%1").arg(iter1.child_reason);
     }
     }
-    qDebug() << QString("    COMPANY-DATAS size:%1").arg(odx_.child_comparam_spec.child_company_datas.child_company_data.size());
-    for (auto iter : odx_.child_comparam_spec.child_company_datas.child_company_data)
+    qDebug() << QString("    COMPANY-DATAS size:%1").arg(odx.child_comparam_spec.child_company_datas.child_company_data.size());
+    for (auto iter : odx.child_comparam_spec.child_company_datas.child_company_data)
     {
     qDebug() << QString("      COMPANY-DATA property:{%1 %2}").arg(iter.attr_id).arg(iter.attr_oid);
     qDebug() << QString("        SHORT-NAME:%1").arg(iter.child_short_name);
@@ -81,8 +81,8 @@ void LoadODX_C::print()
     qDebug() << QString("                PUBLISHER:%1").arg(iter1.child_xdoc.child_publisher);
     }
     }
-    qDebug() << QString("    PROT-STACKS size:%1").arg(odx_.child_comparam_spec.child_proto_stacks.child_prot_stack.size());
-    for (auto iter : odx_.child_comparam_spec.child_proto_stacks.child_prot_stack)
+    qDebug() << QString("    PROT-STACKS size:%1").arg(odx.child_comparam_spec.child_proto_stacks.child_prot_stack.size());
+    for (auto iter : odx.child_comparam_spec.child_proto_stacks.child_prot_stack)
     {
     qDebug() << QString("      PROT-STACK property:{%1}").arg(iter.attr_id);
     qDebug() << QString("        SHORT-NAME:%1").arg(iter.child_short_name);

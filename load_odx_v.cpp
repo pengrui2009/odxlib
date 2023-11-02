@@ -9,7 +9,7 @@ LoadODX_V::LoadODX_V() :
 
 }
 
-int LoadODX_V::load(const QByteArray &fileData)
+int LoadODX_V::load(const QByteArray &fileData, ODX_V &odx)
 {
     pugi::xml_parse_result result = doc_ptr_->load_buffer(fileData.constData(), fileData.length());
     if (!result) {
@@ -20,24 +20,24 @@ int LoadODX_V::load(const QByteArray &fileData)
     // Access the root node: ODX
     pugi::xml_node root = doc_ptr_->child("ODX");
 
-    return read_odx(root, odx_);
+    return read_odx(root, odx);
 }
 
-void LoadODX_V::print()
+void LoadODX_V::print(const ODX_V &odx)
 {
     qDebug() << QString("odx-v property:{xmlns:xsi:%1 MODEL-VERSION:%2 xsi:noNamespaceSchemaLocation:%3}").
-                arg(odx_.attr_xmlns_xsi, odx_.attr_model_version).arg(odx_.attr_xsi_noNamespaceSchemaLocation);
-    qDebug() << QString("  VEHICLE-INFO-SPEC property:{ID:%1 OID:%2}").arg(odx_.child_vehicle_info_spec.attr_id, odx_.child_vehicle_info_spec.attr_oid);
-    qDebug() << QString("      SHORT-NAME:%1").arg(odx_.child_vehicle_info_spec.child_short_name);
-    qDebug() << QString("      LONG-NAME: property:{%1} %2").arg(odx_.child_vehicle_info_spec.child_long_name.attr_ti).arg(odx_.child_vehicle_info_spec.child_long_name.data_value);
-    qDebug() << QString("      INFO-COMPONENTS size:%1").arg(odx_.child_vehicle_info_spec.child_info_components.child_info_component.size());
-    for (auto iter : odx_.child_vehicle_info_spec.child_info_components.child_info_component) {
+                arg(odx.attr_xmlns_xsi, odx.attr_model_version).arg(odx.attr_xsi_noNamespaceSchemaLocation);
+    qDebug() << QString("  VEHICLE-INFO-SPEC property:{ID:%1 OID:%2}").arg(odx.child_vehicle_info_spec.attr_id, odx.child_vehicle_info_spec.attr_oid);
+    qDebug() << QString("      SHORT-NAME:%1").arg(odx.child_vehicle_info_spec.child_short_name);
+    qDebug() << QString("      LONG-NAME: property:{%1} %2").arg(odx.child_vehicle_info_spec.child_long_name.attr_ti).arg(odx.child_vehicle_info_spec.child_long_name.data_value);
+    qDebug() << QString("      INFO-COMPONENTS size:%1").arg(odx.child_vehicle_info_spec.child_info_components.child_info_component.size());
+    for (auto iter : odx.child_vehicle_info_spec.child_info_components.child_info_component) {
     qDebug() << QString("        INFO-COMPONENT property:{%1 %2 %3}").arg(iter.attr_id).arg(iter.attr_oid).arg(iter.attr_xsi_type);
     qDebug() << QString("          SHORT-NAME:%1").arg(iter.child_short_name);
     qDebug() << QString("          LONG-NAME property:{%1} %2").arg(iter.child_long_name.attr_ti).arg(iter.child_long_name.data_value);
 
-    qDebug() << QString("      VEHICLE-INFORMATIONS size:%1").arg(odx_.child_vehicle_info_spec.child_vehicle_informations.child_vehicle_information.size());
-        for (auto iter : odx_.child_vehicle_info_spec.child_vehicle_informations.child_vehicle_information) {
+    qDebug() << QString("      VEHICLE-INFORMATIONS size:%1").arg(odx.child_vehicle_info_spec.child_vehicle_informations.child_vehicle_information.size());
+        for (auto iter : odx.child_vehicle_info_spec.child_vehicle_informations.child_vehicle_information) {
     qDebug() << QString("        VEHICLE-INFORMATION property:{%1}").arg(iter.attr_oid);
     qDebug() << QString("          SHORT-NAME:%1").arg(iter.child_short_name);
     qDebug() << QString("          LONG-NAME property:{%1} :%2").arg(iter.child_long_name.attr_ti).arg(iter.child_long_name.data_value);
